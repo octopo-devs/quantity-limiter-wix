@@ -40,7 +40,7 @@ export class AnalyticApiService {
     if (!shopInfo) return;
     const shopData: IWixShopData = JSON.parse(shopInfo.shopJson);
     parameters.shop_id = shopData.id;
-    parameters.app_name = 'order-limiter-shipping-date';
+    parameters.app_name = 'quantity-limiter-shipping-date';
     const payload = {
       client_id: clientId, // A unique identifier for a user, session, or device
       events: [

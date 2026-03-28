@@ -61,9 +61,9 @@ function App() {
         ...dataSettings.data.data,
       });
 
-      if (data.displayOnboarding) {
-        navigate(PATH.WELCOME);
-      }
+      // if (data.displayOnboarding) {
+      //   navigate(PATH.WELCOME);
+      // }
       config.shop = dataSettings.data.data.shop;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -17,7 +17,7 @@ import { QuantityLimitStyled } from '~/styled/quantity-limit-styled.ts';
 const getInstanceId = (): string | null => {
   // Prefer embedded-script param (Wix CLI), fallback to script tag attribute (legacy)
   if ((window as any).__OL_INSTANCE_ID) return (window as any).__OL_INSTANCE_ID;
-  const scriptElement = document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-order-limiter-script');
+  const scriptElement = document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'order-limiter-script');
   return scriptElement?.getAttribute('data-instance-id') || null;
 };
 
@@ -48,7 +48,10 @@ const initializeApp = async () => {
       });
       const appMetafields = { ...res, publicKey };
       window.estimatedAppMetafields = appMetafields;
-      const mountEl = document.querySelector(`.${ClassEnum.EDDBlock}`) || document.getElementById('ol-storefront-root') || document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-order-limiter-script');
+      const mountEl =
+        document.querySelector(`.${ClassEnum.EDDBlock}`) ||
+        document.getElementById('ol-storefront-root') ||
+        document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-quantity-limiter-script');
       if (!mountEl) {
         console.warn('Order limiter: No mount element found');
         return;

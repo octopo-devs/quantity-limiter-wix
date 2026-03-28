@@ -12,7 +12,7 @@ interface IStorageData {
   click: number[];
 }
 
-const SESSION_STORAGE_KEY = 'ot-order-limiter-analytics';
+const SESSION_STORAGE_KEY = 'ot-quantity-limiter-analytics';
 
 const useAnalytics = () => {
   const { currentVariant } = useShopifyContext();

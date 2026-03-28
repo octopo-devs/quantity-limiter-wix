@@ -1,6 +1,6 @@
 variables:
   #Required defined variable
-  NAMESPACE: app-order-limiter
+  NAMESPACE: app-quantity-limiter
   DOCKER_SECRET_NAME: gitlab-registry
 
   #Migration Variables
@@ -27,7 +27,7 @@ variables:
   MAX_REPLICAS: 2
   API_ENDPOINT_PREFIX: /w/api # Phải bắt đầu với /
   PUBLIC_API_ENDPOINT_PREFIX: /p/api
-  INGRESS_DOMAIN: order-limiter-wix-dev.megamind-dev.online
+  INGRESS_DOMAIN: quantity-limiter-wix-dev.megamind-dev.online
   ENV_DB_HOST: mariadb-0.mariadb-internal.database.svc.cluster.local
   ENV_DB_PORT: '3306'
 
@@ -51,7 +51,7 @@ workflow:
         MAX_REPLICAS: 3
         API_ENDPOINT_PREFIX: /w/api
         PUBLIC_API_ENDPOINT_PREFIX: /p/api
-        INGRESS_DOMAIN: order-limiter-wix.synctrack.ioo
+        INGRESS_DOMAIN: quantity-limiter-wix.synctrack.ioo
         ENV_DB_HOST: $DB_LIVE_SERVER_IP
         ENV_DB_PORT: $DB_LIVE_SERVER_MARIADB_PORT
 

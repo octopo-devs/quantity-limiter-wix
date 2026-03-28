@@ -18,7 +18,7 @@ import { createKeyv } from '@keyv/redis';
                 },
               },
               {
-                namespace: 'order-limiter-wix-backend',
+                namespace: 'quantity-limiter-wix-backend',
                 connectionTimeout: 5000,
               },
             ),

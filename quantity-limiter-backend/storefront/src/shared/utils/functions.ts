@@ -18,7 +18,12 @@ import { HiddenInputAttribute, WixPage } from '@nest/shared.enum';
 import { AppVariableEnum } from '@nest/app.enum';
 import { IWeekWorkingDay, IWeekWorkingDays } from '@nest/shared.interface';
 import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import * as qs from 'qs';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function uniq<T>(a: Array<T>): Array<T> {
   return Array.from(new Set(a.map((item) => JSON.stringify(item)))).map((item) => JSON.parse(item));
@@ -121,8 +126,12 @@ export const calculateEstimatedDates = ({
   const maxDeliveryDaysFinal = productMetafield?.estimateEndDate
     ? +productMetafield.estimateEndDate + maxDeliveryDays
     : maxDeliveryDays;
-  const prepareWeekWorkingDays = isUseSeparateWorkingDays ? weekWorkingDays.prepare : weekWorkingDays.prepareAndDelivery;
-  const deliveryWeekWorkingDays = isUseSeparateWorkingDays ? weekWorkingDays.delivery : weekWorkingDays.prepareAndDelivery;
+  const prepareWeekWorkingDays = isUseSeparateWorkingDays
+    ? weekWorkingDays.prepare
+    : weekWorkingDays.prepareAndDelivery;
+  const deliveryWeekWorkingDays = isUseSeparateWorkingDays
+    ? weekWorkingDays.delivery
+    : weekWorkingDays.prepareAndDelivery;
   const orderPrepareDay = orderedDay(prepareWeekWorkingDays, date_timezone_offset, preOrderDate);
   const orderDeliveryDay = orderedDay(deliveryWeekWorkingDays, date_timezone_offset, preOrderDate);
 
@@ -163,7 +172,7 @@ export const increaseDateTimeByDays = (currentDay: Date, daysToAdd: number): Dat
   return increasedDate;
 };
 
-// Calculate order-limiter Date after dayOff and working day
+// Calculate quantity-limiter Date after dayOff and working day
 export const calculateEstimateDate = (
   startDate: Date,
   daysAfter: number,
@@ -196,7 +205,12 @@ export const calculateEstimateDate = (
 };
 
 // Format date to setup format string
-export const formatEstimatedDate = (date: Date, displayMode: DateDisplayMode, format: string, locale: string): string => {
+export const formatEstimatedDate = (
+  date: Date,
+  displayMode: DateDisplayMode,
+  format: string,
+  locale: string,
+): string => {
   if (displayMode === DateDisplayMode.Relative) {
     const estimatedDate = new Date(date);
     const today = new Date();
@@ -350,8 +364,14 @@ export const renderEstimatedTextAsHiddenInput = (data: {
     isUsePreOrderDate,
     preOrderDate,
   } = currentRule;
-  const { date_format, date_display_mode, date_locale, date_timezone_offset, isUseSeparateWorkingDays, dateCalculationMethod } =
-    shopGeneral || {};
+  const {
+    date_format,
+    date_display_mode,
+    date_locale,
+    date_timezone_offset,
+    isUseSeparateWorkingDays,
+    dateCalculationMethod,
+  } = shopGeneral || {};
 
   const { startShippedDate, endShippedDate, startDeliveredDate, endDeliveredDate } = calculateEstimatedDates({
     minPrepDays,
@@ -408,7 +428,7 @@ export const renderEstimatedTextAsHiddenInput = (data: {
   if (formPropertiesInputs.length) removeDoms(formPropertiesInputs);
   if (formPropertiesClasses.length) removeDoms(formPropertiesClasses);
 
-  // Add a hidden input field with the order-limiter text
+  // Add a hidden input field with the quantity-limiter text
   if (!fieldName) fieldName = labelCheckout || '';
   formsAddToCart.forEach((form) => {
     const minPrepareDaysFinal = productMetafield ? +productMetafield.estimateStartDate : minPrepDays;

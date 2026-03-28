@@ -19,7 +19,7 @@ export class AttributeCronService {
 
   @Cron(
     CronExpression.EVERY_MINUTE,
-    //  { disabled: process.env.name !== 'wix-order-limiter-backend-cron' }
+    //  { disabled: process.env.name !== 'wix-quantity-limiter-backend-cron' }
   )
   async cronAttributes() {
     const attributesCrons = await this.attributeCronRepository.find({

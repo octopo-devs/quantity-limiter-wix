@@ -14,7 +14,7 @@ export class RemoveDataCronService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_10AM, { disabled: process.env.name !== 'wix-order-limiter-backend-cron' })
+  @Cron(CronExpression.EVERY_DAY_AT_10AM, { disabled: process.env.name !== 'wix-quantity-limiter-backend-cron' })
   async removeUninstallOrCloseShopData() {
     const now = Date.now();
     const FROM = 35;

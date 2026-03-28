@@ -1,5 +1,6 @@
 import { ClassEnum } from '@nest/class.enum';
-import { createContext, useEffect, useMemo, useState } from 'react';
+import { ILanguage } from '../../shared/types/nest-types/modules/shop/entities/language.entity';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import useFetch from '~/hooks/useFetch';
 import { Branding, QuantityLimitRule } from '~/shared/types/quantity-limit.types';
 import { IAppContext, IAppContextProviderProps } from './app-context.interface';
@@ -52,6 +53,19 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
     return true;
   }, [state?.shopGeneral, enableAppSetting]);
 
+  const languages = useMemo<ILanguage[]>(() => {
+    return appMetafields?.data?.languages || [];
+  }, [appMetafields]);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleChangeSettingsLanguage = useCallback((_language: ILanguage) => {
+    // Language change handling — can be extended as needed
+  }, []);
+
+  const locationInfo = useMemo(() => {
+    return appMetafields?.data?.locationInfo;
+  }, [appMetafields]);
+
   useEffect(() => {
     if (!metafields.data && metafields.manualData && metafields.shop && metafields.publicKey) {
       callAppApi('GET', 'GET_SHOP_METAFIELDS', {
@@ -76,6 +90,9 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
         isAppEnabled,
         positionClass,
         isAllApiCalled: true,
+        languages,
+        handleChangeSettingsLanguage,
+        locationInfo,
       }}
     >
       {children}

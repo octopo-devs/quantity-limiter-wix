@@ -16,7 +16,8 @@ export const DEFAULT_TIMEZONE = 'Default customer timezone';
 
 export const REGION_COUNTRIES: Record<string, string> = {
   All: 'All',
-  NorthAmerica: 'AI,AG,AW,BS,BB,BZ,BM,VG,CA,BQ,KY,CR,CW,DM,DO,SV,GL,GD,GP,GT,HT,HN,JM,MQ,MX,MS,NI,PA,MF,BL,KN,LC,PM,VC,TT,TC,US',
+  NorthAmerica:
+    'AI,AG,AW,BS,BB,BZ,BM,VG,CA,BQ,KY,CR,CW,DM,DO,SV,GL,GD,GP,GT,HT,HN,JM,MQ,MX,MS,NI,PA,MF,BL,KN,LC,PM,VC,TT,TC,US',
   SouthAmerica: 'AR,BO,BR,CL,CO,EC,FK,GF,GY,PY,PE,GS,SR,UY,VE',
   EU: 'AT,BE,BG,HR,CY,CZ,DK,EE,FI,FR,DE,GR,HU,IE,IT,LV,LT,LU,MT,NL,PL,PT,RO,SK,SI,ES,SE',
   SEA: 'BN,KH,TL,ID,LA,MY,MM,PH,SG,TH,VN',
@@ -165,7 +166,7 @@ export const SESSION_STORAGE_KEY = {
 export const ALL_STATE_VALUE = '---';
 
 export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
-  rootLink: 'https://order-limiter-dev.synctrack.ioo/api',
+  rootLink: 'https://quantity-limiter-dev.synctrack.ioo/api',
   data: {
     settings: {
       id: 4547,

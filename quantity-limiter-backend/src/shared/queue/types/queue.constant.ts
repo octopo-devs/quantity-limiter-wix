@@ -1,6 +1,6 @@
 import { JobOptions } from 'bull';
 
-export const QUEUE_PREFIX: string = 'order-limiter';
+export const QUEUE_PREFIX: string = 'quantity-limiter';
 
 export const QUEUE_OPTIONS: JobOptions = {
   attempts: 5,

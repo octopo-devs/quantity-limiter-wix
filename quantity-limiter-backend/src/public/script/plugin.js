@@ -1,6 +1,6 @@
 (() => {
-  const BASE_URL = 'https://order-limiter-wix.synctrack.ioo/w/api';
-  const scriptId = '#order-limiter-wix-crisp';
+  const BASE_URL = 'https://quantity-limiter-wix.synctrack.ioo/w/api';
+  const scriptId = '#quantity-limiter-wix-crisp';
   const emailStorageKey = 'omega-email-est-instanceId';
   const setLocalStorage = (key, value) => {
     try {

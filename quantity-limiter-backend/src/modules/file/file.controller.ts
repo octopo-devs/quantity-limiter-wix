@@ -9,11 +9,14 @@ import { FileService } from './file.service';
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Get('order-limiter-script-embed')
+  @Get('quantity-limiter-script-embed')
   async embedScript(@Res() res: Response) {
     res.setHeader('Content-Type', 'application/javascript');
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    fs.readFile('extensions/order-limiter/assets/order-limiter.min.js', { encoding: 'utf-8' }, (err, data) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    fs.readFile('extensions/quantity-limiter/assets/quantity-limiter.min.js', { encoding: 'utf-8' }, (err, data) => {
       if (!err) {
         return res.send(data);
       }

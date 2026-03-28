@@ -1,13 +1,21 @@
 export enum ClassEnum {
-  Main = 'ot-order-limiter',
+  Main = 'ot-quantity-limiter',
   EDDBlock = 'synctrack-edd',
   ButtonCartAdd = 'button[data-hook*="add-to-cart"]',
+  ExistRule = 'ot-exist-rule',
+  FormCartAdd = 'form[data-hook*="add-to-cart"]',
+  EstimatedShipping = 'ot-estimated-shipping',
+  HiddenInput = 'ot-hidden-input',
 }
 
 export enum CustomClassEnum {
   Toggle = 'ot-toggle',
 }
 
-// Legacy shipping-era stubs — referenced in functions.ts dead code paths
-export enum CountdownClassEnum {}
-export enum CountryRuleClassEnum {}
+export enum CountdownClassEnum {
+  CountdownContainer = 'ot-countdown-container',
+}
+
+export enum CountryRuleClassEnum {
+  CountryName = 'ot-country-name',
+}

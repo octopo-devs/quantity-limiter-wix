@@ -90,6 +90,8 @@ export declare class ShopGeneral {
   isHiddenCountryRulesNotDetected?: boolean;
   isShowWhenInventoryNotTracked?: boolean;
   dateCalculationMethod: DateCalculationMethod;
+  currency?: string;
+  weightUnit?: string;
 }
 
 export enum SortOptionsEnum {

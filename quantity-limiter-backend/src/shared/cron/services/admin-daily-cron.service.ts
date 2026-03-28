@@ -23,7 +23,7 @@ export class AdminDailyCronService {
     private readonly adminDailyLogRepository: Repository<AdminDailyLog>,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR, { disabled: process.env.name !== 'wix-order-limiter-backend-cron' })
+  @Cron(CronExpression.EVERY_HOUR, { disabled: process.env.name !== 'wix-quantity-limiter-backend-cron' })
   async dailyAnalyticCron(): Promise<any> {
     console.log('dailyAnalyticCron');
     const activeShops = await this.shopInstalledRepository.find({ where: { uninstalled: false, closeStore: false } });

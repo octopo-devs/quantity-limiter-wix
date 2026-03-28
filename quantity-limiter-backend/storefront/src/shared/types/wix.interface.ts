@@ -71,6 +71,7 @@ export type IWixProductData = {
   variants?: IWixVariant[];
   variantId?: string;
   optionsSelectionsIds?: number[];
+  weight?: number;
   dimension3?: WixStockingStatus;
   options?: {
     id: number;

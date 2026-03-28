@@ -11,7 +11,7 @@ export const SHOP_CUSTOM_COUNTRY_NAME = {
   },
 };
 export const SHOP_ALWAY_SHOW_ZIPCODE_INPUT = [];
-export const SHOP_DEMO: string[] = ['order-limiter-delivery-date.myshopify.com'];
+export const SHOP_DEMO: string[] = ['quantity-limiter-delivery-date.myshopify.com'];
 export const SHOP_USE_PARTIAL_CODE: Record<string, string[]> = {
   'shop name': ['Canada'],
 };

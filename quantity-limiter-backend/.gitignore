@@ -10,10 +10,10 @@
 *.http
 ecosystem.config.js
 yarn.lock
-/extensions/order-limiter/assets/*order-limiter.*
-/extensions/order-limiter/assets/*order-limiter.*
-!/extensions/order-limiter/assets/order-limiter.min.js
-/extensions/order-limiter/assets/*order-limiter-abtest.*
+/extensions/quantity-limiter/assets/*quantity-limiter.*
+/extensions/quantity-limiter/assets/*quantity-limiter.*
+!/extensions/quantity-limiter/assets/quantity-limiter.min.js
+/extensions/quantity-limiter/assets/*quantity-limiter-abtest.*
 /extensions/checkout-ui/dist/*checkout-ui.*
 /extensions/checkout-ui/dist/*checkout-ui-abtest.*
 shopify.app*.toml

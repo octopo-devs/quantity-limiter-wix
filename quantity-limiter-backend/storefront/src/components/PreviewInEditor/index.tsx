@@ -1,8 +1,8 @@
 const PreviewInEditor = () => {
   return (
-    <div className="ot-order-limiter-shipping">
+    <div className="ot-quantity-limiter-shipping">
       <div
-        className="ot-order-limiter-shipping-basic-layout"
+        className="ot-quantity-limiter-shipping-basic-layout"
         style={{
           border: '2px solid rgb(186, 230, 253)',
           borderRadius: '8px',
@@ -11,11 +11,11 @@ const PreviewInEditor = () => {
           marginTop: '10px',
         }}
       >
-        <span className="ot-order-limiter-shipping-main-text" style={{ fontSize: '12px' }}>
-          <div className="ot-order-limiter-shipping-title-shipping">
-            <span className="ot-order-limiter-shipping-name-shipping">Preview Order limiter Delivery Datee</span>
+        <span className="ot-quantity-limiter-shipping-main-text" style={{ fontSize: '12px' }}>
+          <div className="ot-quantity-limiter-shipping-title-shipping">
+            <span className="ot-quantity-limiter-shipping-name-shipping">Preview Order limiter Delivery Datee</span>
           </div>
-          <span className="ot-order-limiter-shipping-main-text-order-limiter">
+          <span className="ot-quantity-limiter-shipping-main-text-quantity-limiter">
             ⏰ Order today within{' '}
             <strong style={{ color: '#1750A6' }}>
               <span className="otCountDown" />

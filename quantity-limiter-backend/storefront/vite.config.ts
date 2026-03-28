@@ -20,7 +20,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: path.resolve(__dirname, '../../order-limiter/src/site/embedded-scripts/quantity-limiter/assets'),
+    outDir: path.resolve(__dirname, '../extensions/quantity-limiter/assets'),
     emptyOutDir: true,
     target: 'es2015',
     rollupOptions: {
@@ -29,13 +29,16 @@ export default defineConfig({
         format: 'iife',
         name: 'EstimatedShipping',
         assetFileNames: (assetInfo) =>
-          assetInfo?.name?.endsWith('.css') ? 'order-limiter-styles.css' : '[name]-[hash][extname]',
-        entryFileNames: 'order-limiter.min.js',
-        chunkFileNames: 'order-limiter.min.js',
+          assetInfo?.name?.endsWith('.css') ? 'quantity-limiter-styles.css' : '[name]-[hash][extname]',
+        entryFileNames: 'quantity-limiter.min.js',
+        chunkFileNames: 'quantity-limiter.min.js',
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'styled-components': path.resolve(__dirname, './node_modules/styled-components/dist/styled-components.browser.esm.js'),
+          'styled-components': path.resolve(
+            __dirname,
+            './node_modules/styled-components/dist/styled-components.browser.esm.js',
+          ),
           dayjs: 'dayjs',
         },
         extend: true,
