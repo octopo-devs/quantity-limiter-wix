@@ -1,0 +1,81 @@
+variables:
+  #Required defined variable
+  NAMESPACE: app-estimated
+  DOCKER_SECRET_NAME: gitlab-registry
+
+  #Constants variable
+  DEPLOY_USERNAME: $DEPLOY_USERNAME
+  DEPLOY_PASSWORD: $DEPLOY_PASSWORD
+
+  #Group env Variables
+  IMAGE_TAG: develop
+  SERVER_IP: $MEGAMIND_DEV_SERVER_IP
+  SA_SECRET: $MEGAMIND_DEV_SA_SECRET
+
+  #Project Variables
+  ENV_FILE: $DEV_ENV
+  INGRESS_DOMAIN: estimated-wix-dev.megamind-dev.online
+
+workflow:
+  name: 'Pipeline for branch: $CI_COMMIT_BRANCH'
+  rules:
+    - if: $CI_COMMIT_TITLE =~ /-draft$/
+      when: never
+    - if: $CI_COMMIT_TAG
+      changes:
+        - main
+      variables:
+        IMAGE_TAG: latest
+        SERVER_IP: $BLOCKIFY_LIVE_SERVER_IP
+        SA_SECRET: $BLOCKIFY_LIVE_SA_SECRET
+        ENV_FILE: $LIVE_ENV
+        INGRESS_DOMAIN: estimated-wix.synctrack.io
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
+
+stages:
+  - build
+  - deploy
+
+.deploy_template:
+  image:
+    name: bitnami/kubectl:1.32
+    entrypoint: ['']
+  before_script:
+    - kubectl config set-cluster deploy-cluster --server=https://$SERVER_IP:6443 --insecure-skip-tls-verify
+    - kubectl config set-credentials cicd-sa-token --token=$(echo $SA_SECRET | base64 -d)
+    - kubectl config set-context deploy-context --cluster=deploy-cluster --user=cicd-sa-token
+    - kubectl config use-context deploy-context
+    - kubectl get namespace "$NAMESPACE" || kubectl create namespace "$NAMESPACE"
+    - kubectl delete secret -n $NAMESPACE $DOCKER_SECRET_NAME --ignore-not-found
+    - kubectl create secret -n $NAMESPACE docker-registry $DOCKER_SECRET_NAME --docker-server="$CI_REGISTRY" --docker-username="$DEPLOY_USERNAME" --docker-password="$DEPLOY_PASSWORD" --docker-email=$CI_REGISTRY_USER --dry-run=client -o yaml | kubectl apply -f -
+  script:
+    - kubectl config view
+    - kubectl get ns -o wide
+    - sed -i "s|__IMAGE__|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" ./k8s/deployment.yaml
+    - sed -i "s|__PULL_SECRET_NAME__|$DOCKER_SECRET_NAME|g" ./k8s/deployment.yaml
+    - sed -i "s|__CI_COMMIT_SHA__|$CI_COMMIT_SHA|g" ./k8s/deployment.yaml
+    - sed -i "s|__NAMESPACE__|$NAMESPACE|g" ./k8s/deployment.yaml
+    - sed -i "s|__CI_PROJECT_NAME__|$CI_PROJECT_NAME|g" ./k8s/deployment.yaml
+    - sed -i "s|__INGRESS_DOMAIN__|$INGRESS_DOMAIN|g" ./k8s/deployment.yaml
+    - kubectl apply -f ./k8s/deployment.yaml
+
+build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - env
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin;
+    - echo "$ENV_FILE" > .env
+    - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:$IMAGE_TAG --tag $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  extends: .deploy_template
+  needs:
+    - build

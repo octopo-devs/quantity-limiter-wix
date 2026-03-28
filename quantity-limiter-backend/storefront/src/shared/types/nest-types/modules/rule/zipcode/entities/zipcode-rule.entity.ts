@@ -1,0 +1,37 @@
+import { ZipcodeRuleSpecific } from './zipcode-rule-specific.entity';
+import { ZipcodeRuleAppliedItems } from './zipcode-rule-applied-item.entity';
+import { AppliedItemsType } from '../../types/rule.enum';
+import { CartPageDateDisplayType } from '@nest/nest-types/modules/shop/types/shop.enum';
+export class ZipcodeRule {
+  id: number;
+  shop: string;
+  name: string;
+  zipcode_list: string;
+  zipcode_available: boolean;
+  enable: boolean;
+  show_estimated_date: boolean;
+  minimum_days: number;
+  estimated_days: number;
+  order_to_ship_days: number;
+  ship_to_receive_days: number;
+  show_text_in_cart: boolean;
+  override_text_in_cart: boolean;
+  cart_page_label_text: string;
+  cart_page_date_display: string;
+  cart_page_date_display_type: CartPageDateDisplayType;
+  show_cash_delivery: boolean;
+  cash_delivery_available: boolean;
+  show_extra_cost: boolean;
+  extra_cost: number;
+  show_courier: boolean;
+  courier_name: string;
+  courier_url: string;
+  show_custom_text: boolean;
+  custom_text: string;
+  soldOutEnabled: boolean;
+  soldOutCustomText: string;
+  soldOutCustomTextEnabled: boolean;
+  appliedItemsType: AppliedItemsType;
+  appliedItems: ZipcodeRuleAppliedItems[];
+  ruleSpecifics: ZipcodeRuleSpecific[];
+}

@@ -1,0 +1,253 @@
+variables:
+  #Required defined variable
+  NAMESPACE: app-order-limiter
+  DOCKER_SECRET_NAME: gitlab-registry
+
+  #Migration Variables
+  MIGRATION_DB_HOST: $MEGAMIND_DEV_SERVER_IP #Required defined variable
+  MIGRATION_DB_PORT: 32306 #Required defined variable
+  MIGRATION_STORAGE_REPO: gitlab.xipat.com/megaminds/migrations-storage.git #Do not change
+  MIGRATION_ACCESS_TOKEN: $MIGRATION_ACCESS_TOKEN #Do not change
+
+  #Constants variable
+  DEPLOY_USERNAME: $DEPLOY_USERNAME
+  DEPLOY_PASSWORD: $DEPLOY_PASSWORD
+
+  #Group env Variables
+  IMAGE_TAG: develop
+  SERVER_IP: $MEGAMIND_DEV_SERVER_IP
+  SSH_USERNAME: $MEGAMIND_DEV_SSH_USER
+  SSH_PRIVATE_KEY: $MEGAMIND_DEV_SSH_KEY
+  SA_SECRET: $MEGAMIND_DEV_SA_SECRET
+
+  #Project Variables
+  ENV_FILE: $DEV_ENV
+  STOREFRONT_ENV_FILE: $STOREFRONT_DEV_ENV
+  MIN_REPLICAS: 1
+  MAX_REPLICAS: 2
+  API_ENDPOINT_PREFIX: /w/api # Phải bắt đầu với /
+  PUBLIC_API_ENDPOINT_PREFIX: /p/api
+  INGRESS_DOMAIN: order-limiter-wix-dev.megamind-dev.online
+  ENV_DB_HOST: mariadb-0.mariadb-internal.database.svc.cluster.local
+  ENV_DB_PORT: '3306'
+
+workflow:
+  name: 'Pipeline for branch: $CI_COMMIT_BRANCH'
+  rules:
+    - if: $CI_COMMIT_TITLE =~ /-draft$/
+      when: never
+    - if: $CI_COMMIT_TAG
+      changes:
+        - main
+      variables:
+        IMAGE_TAG: latest
+        SERVER_IP: $BLOCKIFY_LIVE_SERVER_IP
+        SSH_USERNAME: $BLOCKIFY_LIVE_SSH_USER
+        SSH_PRIVATE_KEY: $BLOCKIFY_LIVE_SSH_KEY
+        SA_SECRET: $BLOCKIFY_LIVE_SA_SECRET
+        ENV_FILE: $LIVE_ENV
+        STOREFRONT_ENV_FILE: $STOREFRONT_LIVE_ENV
+        MIN_REPLICAS: 1
+        MAX_REPLICAS: 3
+        API_ENDPOINT_PREFIX: /w/api
+        PUBLIC_API_ENDPOINT_PREFIX: /p/api
+        INGRESS_DOMAIN: order-limiter-wix.synctrack.ioo
+        ENV_DB_HOST: $DB_LIVE_SERVER_IP
+        ENV_DB_PORT: $DB_LIVE_SERVER_MARIADB_PORT
+
+        #Migration Variables
+        MIGRATION_DB_HOST: $DB_LIVE_SERVER_IP
+        MIGRATION_DB_PORT: $DB_LIVE_SERVER_MARIADB_PORT
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+    - when: never
+
+stages:
+  - build
+  - migration_generate
+  - push_migrations
+  - migration_apply
+  - deploy
+  - deploy_without_migration
+  - deploy_manual
+
+.deploy_template:
+  image:
+    name: bitnamisecure/kubectl:latest
+    entrypoint: ['']
+  before_script:
+    - kubectl config set-cluster deploy-cluster --server=https://$SERVER_IP:6443 --insecure-skip-tls-verify
+    - kubectl config set-credentials cicd-sa-token --token=$(echo $SA_SECRET | base64 -d)
+    - kubectl config set-context deploy-context --cluster=deploy-cluster --user=cicd-sa-token
+    - kubectl config use-context deploy-context
+    - kubectl get namespace "$NAMESPACE" || kubectl create namespace "$NAMESPACE"
+    - kubectl delete secret $DOCKER_SECRET_NAME -n $NAMESPACE --ignore-not-found
+    - kubectl create secret -n $NAMESPACE docker-registry $DOCKER_SECRET_NAME --docker-server="$CI_REGISTRY" --docker-username="$DEPLOY_USERNAME" --docker-password="$DEPLOY_PASSWORD" --docker-email=$CI_REGISTRY_USER --dry-run=client -o yaml | kubectl apply -f -
+  script:
+    - kubectl config view
+    - kubectl get ns -o wide
+    - echo "$ENV_FILE" > .env
+    - kubectl create -n $NAMESPACE configmap $CI_PROJECT_NAME --from-env-file=.env --dry-run=client -o yaml | kubectl apply -f -
+    - sed -i "s|__IMAGE__|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" ./k8s/*.yaml
+    - sed -i "s|__PULL_SECRET_NAME__|$DOCKER_SECRET_NAME|g" ./k8s/*.yaml
+    - sed -i "s|__CI_COMMIT_SHA__|$CI_COMMIT_SHA|g" ./k8s/*.yaml
+    - sed -i "s|__NAMESPACE__|$NAMESPACE|g" ./k8s/*.yaml
+    - sed -i "s|__CI_PROJECT_NAME__|$CI_PROJECT_NAME|g" ./k8s/*.yaml
+    - sed -i "s|__API_ENDPOINT_PREFIX__|$API_ENDPOINT_PREFIX|g" ./k8s/*.yaml
+    - sed -i "s|__PUBLIC_API_ENDPOINT_PREFIX__|$PUBLIC_API_ENDPOINT_PREFIX|g" ./k8s/*.yaml
+    - sed -i "s|__MIN_REPLICAS__|$MIN_REPLICAS|g" ./k8s/*.yaml
+    - sed -i "s|__MAX_REPLICAS__|$MAX_REPLICAS|g" ./k8s/*.yaml
+    - sed -i "s|__INGRESS_DOMAIN__|$INGRESS_DOMAIN|g" ./k8s/*.yaml
+    - sed -i "s|__DB_HOST__|$ENV_DB_HOST|g" ./k8s/*.yaml
+    - sed -i "s|__DB_PORT__|$ENV_DB_PORT|g" ./k8s/*.yaml
+    - |
+      if [[ "$IMAGE_TAG" == "develop" ]]; then
+        echo "Commenting out CPU request for development environment..."
+        sed -i "s|cpu:|#cpu:|g" ./k8s/*.yaml
+      fi
+    - kubectl apply -f ./k8s/
+
+build:
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - env
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin;
+    - echo "$STOREFRONT_ENV_FILE" > ./storefront/.env
+    # - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG || true
+    # - docker build --tag $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker build --cache-from $CI_REGISTRY_IMAGE:$IMAGE_TAG --tag $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+
+# sonarqube_job:
+#   stage: sonarqube-analysis
+#   image:
+#     name: sonarsource/sonar-scanner-cli:latest
+#     entrypoint: [""]
+#   variables:
+#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+#     GIT_DEPTH: "0"
+#   cache:
+#     key: "${CI_JOB_NAME}"
+#     paths:
+#       - .sonar/cache
+#   script:
+#     - sed -i "s|__CI_PROJECT_NAME__|$CI_PROJECT_NAME|g" ./sonar-project.properties
+#     - sed -i "s|__CI_PROJECT_TITLE__|$CI_PROJECT_TITLE|g" ./sonar-project.properties
+#     - sonar-scanner
+
+migration_generate:
+  stage: migration_generate
+  image: node:23-alpine
+  needs: [build]
+  services:
+    - docker:dind
+  before_script:
+    - apk update && apk add docker-cli openssh-client bash
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin;
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker create --name tmp-container-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker cp tmp-container-$CI_COMMIT_SHORT_SHA:/app/dist ./dist
+    - docker cp tmp-container-$CI_COMMIT_SHORT_SHA:/app/node_modules ./node_modules
+    - docker rm tmp-container-$CI_COMMIT_SHORT_SHA
+    - echo "$ENV_FILE" > .env
+    - echo "DB_HOST=$MIGRATION_DB_HOST" >> .env
+    - echo "DB_PORT=$MIGRATION_DB_PORT" >> .env
+    - npm run migration:generate
+    - mkdir -p artifacts_migration
+    - |
+      if [ -d dist/db/migrations ] && [ "$(ls -A dist/db/migrations)" ]; then
+        cp -r dist/db/migrations artifacts_migration/;
+        cat dist/db/migrations/* 2>/dev/null
+      else
+        exit 1;
+      fi
+  artifacts:
+    paths:
+      - artifacts_migration
+    expire_in: 1 hour
+
+push_migrations:
+  stage: push_migrations
+  image: node:23-alpine
+  needs: [migration_generate]
+  dependencies:
+    - migration_generate
+  before_script:
+    - apk update && apk add --no-cache bash git
+  script:
+    - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@$MIGRATION_STORAGE_REPO
+    - cd migrations-storage
+    - git checkout -b migrate || git checkout migrate
+    - mkdir -p $CI_PROJECT_NAME
+    - mkdir -p $CI_PROJECT_NAME/$CI_COMMIT_BRANCH
+    - rm -rf $CI_PROJECT_NAME/$CI_COMMIT_BRANCH/*
+    - cp -r ../artifacts_migration/* ./$CI_PROJECT_NAME/$CI_COMMIT_BRANCH/
+    - ls -la ./$CI_PROJECT_NAME/$CI_COMMIT_BRANCH
+    - git add .
+    - git config --global user.email $GITLAB_USER_EMAIL
+    - git config --global user.name $GITLAB_USER_NAME
+    - git commit -m "Update migration scripts" || echo "No change"
+    - git push https://token:$MIGRATION_ACCESS_TOKEN@$MIGRATION_STORAGE_REPO migrate
+    - cat ./$CI_PROJECT_NAME/$CI_COMMIT_BRANCH/migrations/* 2>/dev/null
+    - echo "Migration url - https://gitlab.xipat.com/megaminds/migrations-storage/-/tree/migrate/$CI_PROJECT_NAME/$CI_COMMIT_BRANCH"
+
+migration_apply:
+  stage: migration_apply
+  image: node:23-alpine
+  needs:
+    - build
+    - push_migrations
+  before_script:
+    - apk update && apk add --no-cache docker-cli openssh-client bash git
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin;
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker create --name tmp-container-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker cp tmp-container-$CI_COMMIT_SHORT_SHA:/app/dist ./dist
+    - docker cp tmp-container-$CI_COMMIT_SHORT_SHA:/app/node_modules ./node_modules
+    - docker rm tmp-container-$CI_COMMIT_SHORT_SHA
+    - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@$MIGRATION_STORAGE_REPO
+    - cd migrations-storage
+    - git checkout -b migrate || git checkout migrate
+    - cp -r ./$CI_PROJECT_NAME/$CI_COMMIT_BRANCH/migrations ../dist/db/
+    - ls -l ../dist/db/
+    - cd ..
+    - echo "$ENV_FILE" > .env
+    - echo "DB_HOST=$MIGRATION_DB_HOST" >> .env
+    - echo "DB_PORT=$MIGRATION_DB_PORT" >> .env
+    - npm run migration:run
+  when: manual
+  allow_failure: false
+
+deploy:
+  stage: deploy
+  extends: .deploy_template
+  needs:
+    - migration_generate
+    - migration_apply
+
+deploy_without_migration:
+  stage: deploy_without_migration
+  extends: .deploy_template
+  needs:
+    - migration_generate
+  when: on_failure
+
+deploy_manual:
+  stage: deploy_manual
+  extends: .deploy_template
+  needs:
+    - build
+  when: manual

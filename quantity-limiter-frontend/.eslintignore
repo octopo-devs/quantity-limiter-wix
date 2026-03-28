@@ -1,0 +1,11 @@
+build/*
+public/*
+src/react-app-env.d.ts
+src/serviceWorker.ts
+src/@types/index.d.ts
+src/reportWebVitals.ts
+node_modules
+.github
+webpack.config.js
+vite.config.ts
+.eslintrc.cjs

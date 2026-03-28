@@ -1,0 +1,5 @@
+{
+  "$schema": "https://dev.wix.com/wix-cli/schemas/wix-config.json",
+  "appId": "ceed7e0f-1db9-48ce-bf44-49e3ee836ce4",
+  "projectId": "quantity-limiter"
+}

@@ -1,0 +1,50 @@
+{
+  "name": "storefront-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "wix": "wix",
+    "wix:build": "wix app build",
+    "wix:release": "wix app release",
+    "wix:dev": "wix app dev",
+    "wix:preview": "wix app preview",
+    "wix:generate": "wix app generate",
+    "wix:logs": "wix app logs",
+    "start": "vite",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:watch": "tsc -b && vite build --watch",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "build:types": "tsc --project tsconfig.build.json"
+  },
+  "dependencies": {
+    "@wix/design-system": "^1.111.0",
+    "@wix/editor": "^1.356.0",
+    "@wix/site": "^1.21.0",
+    "dayjs": "^1.11.12",
+    "dayjs-with-plugins": "^1.0.4",
+    "dotenv": "^17.2.3",
+    "qs": "^6.14.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-to-webcomponent": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@wix/cli": "^1.1.142",
+    "@wix/cli-app": "^1.1.142",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "styled-components": "^6.1.12",
+    "typescript": "^5.2.2",
+    "vite": "^4.3.9",
+    "vite-plugin-checker": "^0.7.2"
+  }
+}

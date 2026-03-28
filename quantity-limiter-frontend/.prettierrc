@@ -1,0 +1,17 @@
+{
+  "no-mixed-spaces-and-tabs": ["error", "smart-tabs"],
+  "no-unused-vars": ["error"],
+  "singleQuote": true,
+  "trailingComma": "all",
+  "tabWidth": 2,
+  "semi": true,
+  "printWidth": 120,
+  "jsxSingleQuote": false,
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "always",
+  "requirePragma": false,
+  "insertPragma": false,
+  "proseWrap": "preserve",
+  "endOfLine": "lf"
+}

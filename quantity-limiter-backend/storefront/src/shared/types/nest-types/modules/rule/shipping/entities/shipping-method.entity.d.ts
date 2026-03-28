@@ -1,0 +1,33 @@
+import { CartPageDateDisplayType } from 'src/modules/shop/types/shop.enum';
+import { AppliedItemsType } from '../../types/rule.enum';
+import { ShippingRuleAppliedItems } from './shipping-method-applied-items.entity';
+import { ShippingRule } from './shipping-rule.entity';
+export declare class ShippingMethod {
+    id: number;
+    shop: string;
+    name: string;
+    styled_name: string;
+    position: number;
+    enable: boolean;
+    is_private: boolean;
+    minimum_days: number;
+    estimated_days: number;
+    order_to_ship_days: number;
+    ship_to_receive_days: number;
+    estimated_text: string;
+    show_text_in_cart: boolean;
+    override_text_in_cart: boolean;
+    cart_page_label_text: string;
+    cart_page_date_display: string;
+    cart_page_date_display_type: CartPageDateDisplayType;
+    privacy_text: string;
+    icon: string;
+    showCountdown: boolean;
+    show_when_product_is_out_of_stock: boolean;
+    soldOutEnabled: boolean;
+    soldOutCustomTextEnabled: boolean;
+    soldOutCustomText: string;
+    shippingRules: ShippingRule[];
+    appliedItemsType: AppliedItemsType;
+    appliedItems: ShippingRuleAppliedItems[];
+}

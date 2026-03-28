@@ -1,0 +1,12 @@
+**/node_modules
+dist
+build
+.git
+Dockerfile
+k8s
+.shopify
+.scannerwork
+npm-debug.log
+*.log
+.vscode
+.idea

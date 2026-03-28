@@ -1,0 +1,16 @@
+export enum Ga4Event {
+  PricingDisplay = 'pricing_plan_impression',
+  ChoosePlan = 'choose_plan',
+  ChargeDone = 'charge_done',
+  Uninstall = 'uninstall',
+  ImpressSynctrackBanner = 'impress_ST',
+  ClickSynctrackBanner = 'click_ST',
+  ImpressBlockifyBanner = 'impress_checkout',
+  ClickBlockifyBanner = 'click_checkout',
+  ImpressOrderTrackingBanner = 'impress_homebanner3',
+  ClickOrderTrackingBanner = 'click_homebanner3',
+  ImpressReturnsBanner = 'impress_returns',
+  ClickReturnsBanner = 'click_returns',
+  ImpressLimit = 'impress_limit',
+  ClickLimit = 'click_limit',
+}
