@@ -13,7 +13,7 @@ const PreviewInEditor = () => {
       >
         <span className="ot-quantity-limiter-shipping-main-text" style={{ fontSize: '12px' }}>
           <div className="ot-quantity-limiter-shipping-title-shipping">
-            <span className="ot-quantity-limiter-shipping-name-shipping">Preview Order limiter Delivery Datee</span>
+            <span className="ot-quantity-limiter-shipping-name-shipping">Preview Quantity limiter Delivery Datee</span>
           </div>
           <span className="ot-quantity-limiter-shipping-main-text-quantity-limiter">
             ⏰ Order today within{' '}
