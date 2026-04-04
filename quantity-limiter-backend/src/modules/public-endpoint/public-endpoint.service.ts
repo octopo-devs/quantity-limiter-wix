@@ -42,10 +42,10 @@ export class PublicEndpointService {
   }
 
   async getCurrentWixCartInfoPublic(payload: GetWixCartInfoDto) {
-    const { shop, key } = payload;
+    const { shop, key, cartId } = payload;
     const hmac = generateHmacKey(shop, this.PUBLIC_API_HMAC_KEY);
     if (hmac !== key) throw new UnauthorizedException('Key invalid');
-    return this.wixApiService.getCurrentCartInfoV1(shop);
+    return this.wixApiService.getCartById(shop, cartId);
   }
 
   async getShopMetafield(shop: string): Promise<IShopifyAppMetafieldPayloadRule> {

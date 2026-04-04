@@ -28,4 +28,7 @@ export class GetWixProductInfoDto extends GetPublicMetafieldDto {
   productId?: string;
 }
 
-export class GetWixCartInfoDto extends GetPublicMetafieldDto {}
+export class GetWixCartInfoDto extends GetPublicMetafieldDto {
+  @IsString()
+  cartId: string;
+}

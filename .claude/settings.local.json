@@ -43,7 +43,12 @@
       "Bash(grep -r \"languages\\\\|handleChangeSettingsLanguage\\\\|locationInfo\" /e/work/repositories/quantity-limiter-wix/quantity-limiter-backend/storefront/src --include=*.ts --include=*.tsx -B 2 -A 2)",
       "Bash(grep -r \"currency\\\\|weightUnit\" /e/work/repositories/quantity-limiter-wix/quantity-limiter-backend/storefront/src --include=*.ts --include=*.tsx -B 2 -A 2)",
       "Bash(grep -r 'enum ELanguage' /e/work/repositories/quantity-limiter-wix/quantity-limiter-backend/storefront/src --include=*.ts --include=*.tsx -A 50)",
-      "Bash(grep -r \"ELanguage\\\\|ExistRule\\\\|FormCartAdd\\\\|EstimatedShipping\\\\|HiddenInput\\\\|CountryName\\\\|CountdownContainer\" /e/work/repositories/quantity-limiter-wix/quantity-limiter-backend/storefront/src --include=*.ts --include=*.tsx -n)"
+      "Bash(grep -r \"ELanguage\\\\|ExistRule\\\\|FormCartAdd\\\\|EstimatedShipping\\\\|HiddenInput\\\\|CountryName\\\\|CountdownContainer\" /e/work/repositories/quantity-limiter-wix/quantity-limiter-backend/storefront/src --include=*.ts --include=*.tsx -n)",
+      "Bash(git log:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

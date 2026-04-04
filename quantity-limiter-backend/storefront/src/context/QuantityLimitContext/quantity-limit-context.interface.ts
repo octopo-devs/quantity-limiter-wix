@@ -3,4 +3,5 @@ import { QuantityLimitResult, QuantityLimitRule } from '~/shared/types/quantity-
 export interface IQuantityLimitContext {
   rules: QuantityLimitRule[];
   results: Record<string, QuantityLimitResult>;
+  hasViolation: boolean;
 }
