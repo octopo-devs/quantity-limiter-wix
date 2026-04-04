@@ -204,7 +204,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
       isHiddenCountryRulesNotDetected: false,
       clientJsUrl: 'development',
       choose_layout: 'card',
-      labelCheckout: 'Order limiter between',
+      labelCheckout: 'Quantity limiter between',
       get_customer_zipcode: 1,
       created_at: null,
       updated_at: null,
@@ -231,7 +231,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
       date_format: 'ddd DD MMM',
       date_locale: 'en',
       date_display_mode: 'relative' as DateDisplayMode,
-      cart_page_label_text: 'Order limiter between',
+      cart_page_label_text: 'Quantity limiter between',
       cart_page_date_display: '{delivery_min} and {delivery_max}',
       isShowDeliveryMethodName: false,
       isDynamicDateInCart: false,
@@ -284,7 +284,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -313,7 +313,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -349,7 +349,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -384,7 +384,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         minDeliveryDays: 4,
         estimatedText: '<p>ewwqqwe</p>',
         showTextInCart: true,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -419,7 +419,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: true,
-        cartPageLabelText: 'Order limiter between 123',
+        cartPageLabelText: 'Quantity limiter between 123',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: true,
@@ -469,7 +469,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: true,
-        cartPageLabelText: 'Order limiter between 123',
+        cartPageLabelText: 'Quantity limiter between 123',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: true,
@@ -519,7 +519,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -560,7 +560,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -614,7 +614,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -651,7 +651,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,
@@ -688,7 +688,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         estimatedText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
-        cartPageLabelText: 'Order limiter between',
+        cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
         cartPageDateDisplayType: CartPageDateDisplayType.MessageText,
         soldOutEnabled: false,

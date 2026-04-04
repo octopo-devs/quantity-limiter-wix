@@ -17,7 +17,7 @@ import { QuantityLimitStyled } from '~/styled/quantity-limit-styled.ts';
 const getInstanceId = (): string | null => {
   // Prefer embedded-script param (Wix CLI), fallback to script tag attribute (legacy)
   if ((window as any).__OL_INSTANCE_ID) return (window as any).__OL_INSTANCE_ID;
-  const scriptElement = document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'order-limiter-script');
+  const scriptElement = document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'quantity-limiter-script');
   return scriptElement?.getAttribute('data-instance-id') || null;
 };
 
@@ -53,7 +53,7 @@ const initializeApp = async () => {
         document.getElementById('ol-storefront-root') ||
         document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-quantity-limiter-script');
       if (!mountEl) {
-        console.warn('Order limiter: No mount element found');
+        console.warn('Quantity limiter: No mount element found');
         return;
       }
       const root = ReactDOM.createRoot(mountEl);
@@ -73,7 +73,7 @@ const initializeApp = async () => {
             </StyleSheetManager>
           </React.StrictMode>,
         );
-      } else console.log('Order limiter: Metafields not found');
+      } else console.log('Quantity limiter: Metafields not found');
     }
   } catch (error) {
     console.log('Get shop metafield failed', error);
@@ -82,6 +82,7 @@ const initializeApp = async () => {
 
 const handleSaveWixData = async (topic: string, data: IWixPage | IWixProductData) => {
   const instanceId = getInstanceId();
+  console.log('handleSaveWixData', topic, data);
 
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
   switch (topic) {
@@ -111,7 +112,7 @@ const handleSaveWixData = async (topic: string, data: IWixPage | IWixProductData
             window.estimatedProductVariants = productInfo?.variants || [];
           }
         } catch (error) {
-          console.log('Order limiter: Get current product info error', error);
+          console.log('Quantity limiter: Get current product info error', error);
         }
       }
       window.estimatedCurrentProduct = data as IWixProductData;

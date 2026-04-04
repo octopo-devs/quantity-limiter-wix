@@ -35,7 +35,7 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
       branding,
     }));
     const rootLink = appMetafields?.rootLink;
-    const enableAppSetting = !!Number(shopGeneral?.enable_app);
+    const enableAppSetting = !!Number(shopGeneral?.enableApp);
     return { rootLink, enableAppSetting };
   }, [appMetafields]);
 

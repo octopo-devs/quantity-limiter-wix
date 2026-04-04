@@ -72,5 +72,10 @@ declare global {
       locationInfo: boolean;
       allCountries: boolean;
     };
+    estimatedQuantityOnPage: number;
+    estimatedCartId?: string;
+    estimatedCartRefresh?: () => void;
+    estimatedCartClear?: () => void;
+    __OL_INSTANCE_ID?: string;
   }
 }
