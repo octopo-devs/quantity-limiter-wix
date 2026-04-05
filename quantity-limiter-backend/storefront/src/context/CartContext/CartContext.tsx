@@ -66,8 +66,8 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
    * Returns true if cart was found, false if cart no longer exists.
    */
   const fetchCartById = useCallback(async (cartId: string): Promise<boolean> => {
-    const shop = window.estimatedShop;
-    const publicKey = window.estimatedAppMetafields?.publicKey;
+    const shop = window.qlShop;
+    const publicKey = window.qlAppMetafields?.publicKey;
     if (!shop || !publicKey) return false;
 
     try {
@@ -83,12 +83,12 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
 
       // Cart exists but has 0 items (emptied after logout/purchase) — clear stale data
       clearCartId();
-      window.estimatedCartId = undefined;
+      window.qlCartId = undefined;
       setCartItems([]);
       return false;
     } catch {
       clearCartId();
-      window.estimatedCartId = undefined;
+      window.qlCartId = undefined;
       setCartItems([]);
       return false;
     }
@@ -106,10 +106,10 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
 
   /**
    * Re-fetch cart from API.
-   * Called via window.estimatedCartRefresh after AddToCart/RemoveFromCart events.
+   * Called via window.qlCartRefresh after AddToCart/RemoveFromCart events.
    */
   const refreshCart = useCallback(() => {
-    const cartId = window.estimatedCartId || getSavedCartId();
+    const cartId = window.qlCartId || getSavedCartId();
     if (!cartId) return;
 
     saveCartId(cartId);
@@ -119,13 +119,13 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
   // Clear cart state (called on logout / session change)
   const clearCart = useCallback(() => {
     clearCartId();
-    window.estimatedCartId = undefined;
+    window.qlCartId = undefined;
     setCartItems([]);
   }, []);
 
   useEffect(() => {
-    window.estimatedCartRefresh = refreshCart;
-    window.estimatedCartClear = clearCart;
+    window.qlCartRefresh = refreshCart;
+    window.qlCartClear = clearCart;
   }, [refreshCart, clearCart]);
 
   // Map cart items to WixVariant format for quantity limit calculations

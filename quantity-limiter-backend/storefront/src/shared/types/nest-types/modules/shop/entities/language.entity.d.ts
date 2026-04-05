@@ -1,7 +1,7 @@
 export interface IRuleContent {
   id: number;
   name: string;
-  estimatedText: string;
+  qlText: string;
   privacyPageText: string;
   privacyMore: string;
   cartPageLabelText: string;

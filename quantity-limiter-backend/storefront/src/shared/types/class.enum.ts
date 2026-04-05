@@ -4,7 +4,7 @@ export enum ClassEnum {
   ButtonCartAdd = 'button[data-hook*="add-to-cart"]',
   ExistRule = 'ot-exist-rule',
   FormCartAdd = 'form[data-hook*="add-to-cart"]',
-  EstimatedShipping = 'ot-estimated-shipping',
+  QLShipping = 'ot-ql-shipping',
   HiddenInput = 'ot-hidden-input',
 }
 

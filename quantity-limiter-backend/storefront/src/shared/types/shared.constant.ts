@@ -281,7 +281,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxPrepDays: 0,
         minDeliveryDays: 0,
         maxDeliveryDays: 1,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -310,7 +310,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 2,
         minPrepDays: 0,
         minDeliveryDays: 0,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -346,7 +346,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 1,
         minPrepDays: 1,
         minDeliveryDays: 1,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b>',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -382,7 +382,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 5,
         minPrepDays: 2,
         minDeliveryDays: 4,
-        estimatedText: '<p>ewwqqwe</p>',
+        qlText: '<p>ewwqqwe</p>',
         showTextInCart: true,
         cartPageLabelText: 'Quantity limiter between',
         cartPageDateDisplay: '{delivery_min} and {delivery_max}',
@@ -416,7 +416,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 4,
         minPrepDays: 1,
         minDeliveryDays: 3,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: true,
         cartPageLabelText: 'Quantity limiter between 123',
@@ -466,7 +466,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 4,
         minPrepDays: 1,
         minDeliveryDays: 3,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: true,
         cartPageLabelText: 'Quantity limiter between 123',
@@ -516,7 +516,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 4,
         minPrepDays: 1,
         minDeliveryDays: 1,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -557,7 +557,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 3,
         minPrepDays: 1,
         minDeliveryDays: 1,
-        estimatedText:
+        qlText:
           '⏰ Order today within <b>{TimeCountDown}</b> to get discounted price<br>\n🚚 Delivery from <b>{delivery_min}</b> to <b>{delivery_max}</b> {flag} {country}',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -611,7 +611,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 3,
         minPrepDays: 0,
         minDeliveryDays: 0,
-        estimatedText:
+        qlText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -648,7 +648,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 3,
         minPrepDays: 0,
         minDeliveryDays: 0,
-        estimatedText:
+        qlText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -685,7 +685,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
         maxDeliveryDays: 3,
         minPrepDays: 0,
         minDeliveryDays: 0,
-        estimatedText:
+        qlText:
           '⏰ Order today within <strong style="color: #1373DC;">{TimeCountDown}</strong> to get discounted price<br>🚚 Delivery from <strong style="color: #1373DC;">{delivery_min}</strong> to <strong style="color: #1373DC;">{delivery_max}</strong> {flag} {country}',
         showTextInCart: false,
         cartPageLabelText: 'Quantity limiter between',
@@ -723,7 +723,7 @@ export const SAMPLE_DATA: IShopifyAppMetafieldPayload = {
           {
             id: 6,
             name: 'Tất cả',
-            estimatedText:
+            qlText:
               '⏰ Đặt hàng hôm nay trong vòng <b>{TimeCountDown}</b> để được giảm giá<br>\n🚚 Giao hàng từ <b>{delivery_min}</b> đến <b>{delivery_max}</b>',
             privacyPageText: 'Chính sách bảo mật',
             privacyMore: 'Xem thêm',

@@ -28,7 +28,7 @@ const LanguageContextProvider = ({ children }: { children: React.ReactNode }) =>
       default:
         break;
     }
-    window.estimatedDetectedLanguageCode = languageCode;
+    window.qlDetectedLanguageCode = languageCode;
     return languageCode;
   }, [locale, locationInfo?.language_code, shopGeneral?.detectionMethod]);
 

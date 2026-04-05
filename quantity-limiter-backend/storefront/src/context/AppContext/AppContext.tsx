@@ -74,7 +74,7 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
           key: metafields.publicKey,
         },
       }).then((res: any) => {
-        window.estimatedAppMetafields = res;
+        window.qlAppMetafields = res;
         setAppMetafields(res);
       });
     }

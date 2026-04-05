@@ -12,7 +12,7 @@ export declare class ZipcodeRuleSpecific {
     zipcode_name: string;
     enable: boolean;
     minimum_days: number;
-    estimated_days: number;
+    ql_days: number;
     order_to_ship_days: number;
     ship_to_receive_days: number;
     custom_text: string;

@@ -5,7 +5,7 @@ export declare class ZipcodeSetting {
     for_all_product: number;
     specific_products: string;
     specific_vendors: string;
-    estimated_text: string;
+    ql_text: string;
     input_label: string;
     input_placeholder: string;
     submit_button: string;

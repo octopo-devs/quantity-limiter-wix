@@ -56,26 +56,26 @@ declare global {
       getLanguage: () => string;
     };
 
-    estimatedCurrentPage: IWixPage;
-    estimatedCurrentProduct: IWixProductData;
-    estimatedCurrentCollectionIds: string[];
-    estimatedCurrentRibbon: string;
-    estimatedPrevProductId?: string;
-    estimatedProductVariants: IWixVariant[];
-    estimatedShop: string;
-    estimatedAppMetafields: IShopifyAppMetafieldPayload;
-    estimatedSelectedVariant?: IWixVariant;
-    estimatedDetectedLanguageCode?: string;
-    estimatedRuleLog: IRuleLog;
-    estimatedReInitApp: () => void;
-    estimatedIsApiCalled: {
+    qlCurrentPage: IWixPage;
+    qlCurrentProduct: IWixProductData;
+    qlCurrentCollectionIds: string[];
+    qlCurrentRibbon: string;
+    qlPrevProductId?: string;
+    qlProductVariants: IWixVariant[];
+    qlShop: string;
+    qlAppMetafields: IShopifyAppMetafieldPayload;
+    qlSelectedVariant?: IWixVariant;
+    qlDetectedLanguageCode?: string;
+    qlRuleLog: IRuleLog;
+    qlReInitApp: () => void;
+    qlIsApiCalled: {
       locationInfo: boolean;
       allCountries: boolean;
     };
-    estimatedQuantityOnPage: number;
-    estimatedCartId?: string;
-    estimatedCartRefresh?: () => void;
-    estimatedCartClear?: () => void;
+    qlQuantityOnPage: number;
+    qlCartId?: string;
+    qlCartRefresh?: () => void;
+    qlCartClear?: () => void;
     __OL_INSTANCE_ID?: string;
   }
 }

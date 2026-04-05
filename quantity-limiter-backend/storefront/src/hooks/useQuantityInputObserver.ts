@@ -19,7 +19,7 @@ const QUANTITY_BUTTON_SELECTORS = [
 
 /**
  * Monitors quantity input fields on Wix product pages.
- * Updates window.estimatedQuantityOnPage and triggers re-render on change.
+ * Updates window.qlQuantityOnPage and triggers re-render on change.
  * Uses MutationObserver to handle Wix SPA navigation.
  */
 export function useQuantityInputObserver() {
@@ -36,9 +36,9 @@ export function useQuantityInputObserver() {
       if (!input) return;
 
       const quantity = readQuantity(input);
-      if (window.estimatedQuantityOnPage !== quantity) {
-        window.estimatedQuantityOnPage = quantity;
-        window.estimatedReInitApp?.();
+      if (window.qlQuantityOnPage !== quantity) {
+        window.qlQuantityOnPage = quantity;
+        window.qlReInitApp?.();
       }
     };
 
@@ -62,8 +62,8 @@ export function useQuantityInputObserver() {
       const firstInput = document.querySelector(QUANTITY_INPUT_SELECTORS);
       if (firstInput) {
         const quantity = readQuantity(firstInput);
-        if (window.estimatedQuantityOnPage !== quantity) {
-          window.estimatedQuantityOnPage = quantity;
+        if (window.qlQuantityOnPage !== quantity) {
+          window.qlQuantityOnPage = quantity;
         }
       }
     };

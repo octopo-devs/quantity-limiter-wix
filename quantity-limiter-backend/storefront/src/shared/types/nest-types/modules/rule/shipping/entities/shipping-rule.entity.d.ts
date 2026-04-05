@@ -7,10 +7,10 @@ export declare class ShippingRule {
     shipping_method_id: number;
     enable: boolean;
     minimum_days: number;
-    estimated_days: number;
+    ql_days: number;
     order_to_ship_days: number;
     ship_to_receive_days: number;
-    estimated_text: string;
+    ql_text: string;
     show_text_in_cart: boolean;
     override_text_in_cart: boolean;
     cart_page_label_text: string;

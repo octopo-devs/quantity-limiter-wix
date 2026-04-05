@@ -4,13 +4,13 @@ import { IShopifyContext } from './shopify-context.interface';
 const ShopifyContext = createContext<undefined | IShopifyContext>(undefined);
 
 const ShopifyContextProvider = ({ children }: { children: ReactNode }) => {
-  const [currentProductState, setCurrentProductState] = useState(window.estimatedCurrentProduct);
+  const [currentProductState, setCurrentProductState] = useState(window.qlCurrentProduct);
 
-  // Watch for changes in window.estimatedCurrentProduct
+  // Watch for changes in window.qlCurrentProduct
   useEffect(() => {
     const checkProductChange = () => {
-      if (JSON.stringify(window.estimatedCurrentProduct) !== JSON.stringify(currentProductState)) {
-        setCurrentProductState(window.estimatedCurrentProduct);
+      if (JSON.stringify(window.qlCurrentProduct) !== JSON.stringify(currentProductState)) {
+        setCurrentProductState(window.qlCurrentProduct);
       }
     };
 
@@ -22,20 +22,20 @@ const ShopifyContextProvider = ({ children }: { children: ReactNode }) => {
   const { locale, currentPage, currentProduct, currentProductInfo, currentVariant } = useMemo(() => {
     const locale = window?.wixEmbedsAPI.getLanguage() || '';
 
-    const currentPage = window?.estimatedCurrentPage?.pageTypeIdentifier || '';
+    const currentPage = window?.qlCurrentPage?.pageTypeIdentifier || '';
 
-    const currentProduct = window?.estimatedCurrentProduct;
+    const currentProduct = window?.qlCurrentProduct;
     const currentVariant = {
-      id: window?.estimatedCurrentProduct?.variantId || '',
+      id: window?.qlCurrentProduct?.variantId || '',
       sku:
-        window?.estimatedProductVariants?.find((variant) => variant.id === window?.estimatedCurrentProduct?.variantId)?.sku ||
-        window?.estimatedCurrentProduct?.sku ||
+        window?.qlProductVariants?.find((variant) => variant.id === window?.qlCurrentProduct?.variantId)?.sku ||
+        window?.qlCurrentProduct?.sku ||
         '',
     };
 
     const currentProductInfo = {
-      variants: window?.estimatedCurrentProduct?.variants || [],
-      collections: window?.estimatedCurrentCollectionIds || [],
+      variants: window?.qlCurrentProduct?.variants || [],
+      collections: window?.qlCurrentCollectionIds || [],
     };
     return {
       locale,

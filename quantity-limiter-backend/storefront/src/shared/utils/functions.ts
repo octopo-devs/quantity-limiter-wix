@@ -84,7 +84,7 @@ const orderedDay = (weekWorkingDays: IWeekWorkingDay[], timezoneOffset: string, 
   return today;
 };
 
-export const calculateEstimatedDates = ({
+export const calculateQLDates = ({
   minPrepDays,
   maxPrepDays,
   minDeliveryDays,
@@ -205,27 +205,27 @@ export const calculateEstimateDate = (
 };
 
 // Format date to setup format string
-export const formatEstimatedDate = (
+export const formatQLDate = (
   date: Date,
   displayMode: DateDisplayMode,
   format: string,
   locale: string,
 ): string => {
   if (displayMode === DateDisplayMode.Relative) {
-    const estimatedDate = new Date(date);
+    const qlDate = new Date(date);
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Set time to 00:00:00 for both today and tomorrow to compare only the dates
-    const estimatedTime = estimatedDate.setHours(0, 0, 0, 0);
+    const qlTime = qlDate.setHours(0, 0, 0, 0);
     const todayTime = today.setHours(0, 0, 0, 0);
     const tomorrowTime = tomorrow.setHours(0, 0, 0, 0);
 
     const translatedLocaleExist = DATE_LOCALE_TRANSLATES.find((translatedLocale) => translatedLocale.locale === locale);
 
-    if (estimatedTime === todayTime) return translatedLocaleExist?.today || 'Today';
-    if (estimatedTime === tomorrowTime) return translatedLocaleExist?.tomorrow || 'Tomorrow';
+    if (qlTime === todayTime) return translatedLocaleExist?.today || 'Today';
+    if (qlTime === tomorrowTime) return translatedLocaleExist?.tomorrow || 'Tomorrow';
   }
   // dayjs.locale(locale);
   return dayjs(date).format(format);
@@ -268,10 +268,10 @@ export const checkRegionCityEqual = (str1?: string, str2?: string): boolean => {
   if (!str1 && !str2) return true;
   if (!str1 || !str2) return false;
   const clean = (str: string) => removeAccents(str).trim().toLowerCase().replace(/\s+/g, '');
-  const mapCustomProvinceName = SHOP_CUSTOM_SPAIN_PROVINCE_NAME[window.estimatedShop || ''];
+  const mapCustomProvinceName = SHOP_CUSTOM_SPAIN_PROVINCE_NAME[window.qlShop || ''];
   const cleanedStr1 = clean(mapCustomProvinceName?.[str1] ?? str1);
   const cleanedStr2 = clean(mapCustomProvinceName?.[str2] ?? str2);
-  if (SHOP_CUSTOM_CHECK_INCLUDES_STATE_NAME.includes(window.estimatedShop || '')) {
+  if (SHOP_CUSTOM_CHECK_INCLUDES_STATE_NAME.includes(window.qlShop || '')) {
     return cleanedStr1.includes(cleanedStr2) || cleanedStr2.includes(cleanedStr1);
   }
   return cleanedStr1 === cleanedStr2;
@@ -311,18 +311,18 @@ export const splitStringByIndex = (str: string, index: number): string[] => {
   return [firstPart, secondPart];
 };
 
-export const generateDateDisplay = (estimatedText: string) => {
-  const prepMinIndex = estimatedText.indexOf(AppVariableEnum.StartShipDate);
-  const prepMaxIndex = estimatedText.indexOf(AppVariableEnum.EndShipDate);
-  const deliveryMinIndex = estimatedText.indexOf(AppVariableEnum.StartDeliveredDate);
-  const deliveryMaxIndex = estimatedText.indexOf(AppVariableEnum.EndDeliveredDate);
+export const generateDateDisplay = (qlText: string) => {
+  const prepMinIndex = qlText.indexOf(AppVariableEnum.StartShipDate);
+  const prepMaxIndex = qlText.indexOf(AppVariableEnum.EndShipDate);
+  const deliveryMinIndex = qlText.indexOf(AppVariableEnum.StartDeliveredDate);
+  const deliveryMaxIndex = qlText.indexOf(AppVariableEnum.EndDeliveredDate);
   const indexes = [prepMinIndex, prepMaxIndex, deliveryMinIndex, deliveryMaxIndex].filter((index) => index > -1);
   let splitIndex = 0;
   if (indexes.length) splitIndex = Math.min(...indexes);
-  return removeHtmlTag(splitStringByIndex(estimatedText, splitIndex)[1]);
+  return removeHtmlTag(splitStringByIndex(qlText, splitIndex)[1]);
 };
 
-export const renderEstimatedTextAsHiddenInput = (data: {
+export const renderQLTextAsHiddenInput = (data: {
   currentRule: IRule;
   shopGeneral: ShopGeneral;
   labelCheckout?: string;
@@ -373,7 +373,7 @@ export const renderEstimatedTextAsHiddenInput = (data: {
     dateCalculationMethod,
   } = shopGeneral || {};
 
-  const { startShippedDate, endShippedDate, startDeliveredDate, endDeliveredDate } = calculateEstimatedDates({
+  const { startShippedDate, endShippedDate, startDeliveredDate, endDeliveredDate } = calculateQLDates({
     minPrepDays,
     maxPrepDays,
     minDeliveryDays,
@@ -387,7 +387,7 @@ export const renderEstimatedTextAsHiddenInput = (data: {
     preOrderDate: isUsePreOrderDate && preOrderDate ? new Date(preOrderDate) : undefined,
   });
 
-  const { ExistRule, FormCartAdd, EstimatedShipping, HiddenInput } = ClassEnum;
+  const { ExistRule, FormCartAdd, QLShipping, HiddenInput } = ClassEnum;
   const formsAddToCart = document.querySelectorAll(FormCartAdd);
   const existRuleDoms = document.querySelectorAll(`.${ExistRule}`);
   if (existRuleDoms.length) removeDoms(existRuleDoms);
@@ -403,19 +403,19 @@ export const renderEstimatedTextAsHiddenInput = (data: {
   } else {
     rawInputValue =
       cartPageDateDisplayType === CartPageDateDisplayType.MessageText
-        ? generateDateDisplay(currentRule.estimatedText)
+        ? generateDateDisplay(currentRule.qlText)
         : cartPageDateDisplay;
   }
 
   const inputValue = rawInputValue
     .split(AppVariableEnum.StartShipDate)
-    .join(formatEstimatedDate(startShippedDate, date_display_mode, date_format, date_locale))
+    .join(formatQLDate(startShippedDate, date_display_mode, date_format, date_locale))
     .split(AppVariableEnum.EndShipDate)
-    .join(formatEstimatedDate(endShippedDate, date_display_mode, date_format, date_locale))
+    .join(formatQLDate(endShippedDate, date_display_mode, date_format, date_locale))
     .split(AppVariableEnum.StartDeliveredDate)
-    .join(formatEstimatedDate(startDeliveredDate, date_display_mode, date_format, date_locale))
+    .join(formatQLDate(startDeliveredDate, date_display_mode, date_format, date_locale))
     .split(AppVariableEnum.EndDeliveredDate)
-    .join(formatEstimatedDate(endDeliveredDate, date_display_mode, date_format, date_locale))
+    .join(formatQLDate(endDeliveredDate, date_display_mode, date_format, date_locale))
     .split(AppVariableEnum.Country)
     .join(countryName || '')
     .split(AppVariableEnum.FlagIcon)
@@ -423,7 +423,7 @@ export const renderEstimatedTextAsHiddenInput = (data: {
     .trim();
 
   const formPropertiesInputs = document.querySelectorAll(`${FormCartAdd} input[name="properties[${fieldName}]"]`);
-  const formPropertiesClasses = document.querySelectorAll(`.${EstimatedShipping}`);
+  const formPropertiesClasses = document.querySelectorAll(`.${QLShipping}`);
   // Remove existing properties fields
   if (formPropertiesInputs.length) removeDoms(formPropertiesInputs);
   if (formPropertiesClasses.length) removeDoms(formPropertiesClasses);
@@ -466,7 +466,7 @@ export const renderEstimatedTextAsHiddenInput = (data: {
   });
 };
 
-export const generateEstimatedHtml = (
+export const generateQLHtml = (
   shopGeneral: ShopGeneral,
   initHtml: string,
   startShippedDate: Date,
@@ -481,13 +481,13 @@ export const generateEstimatedHtml = (
 
   const dateSpanHtml = initHtml
     .split(AppVariableEnum.StartShipDate)
-    .join(`${formatEstimatedDate(startShippedDate, date_display_mode, date_format, date_locale)}`)
+    .join(`${formatQLDate(startShippedDate, date_display_mode, date_format, date_locale)}`)
     .split(AppVariableEnum.EndShipDate)
-    .join(`${formatEstimatedDate(endShippedDate, date_display_mode, date_format, date_locale)}`)
+    .join(`${formatQLDate(endShippedDate, date_display_mode, date_format, date_locale)}`)
     .split(AppVariableEnum.StartDeliveredDate)
-    .join(`${formatEstimatedDate(startDeliveredDate, date_display_mode, date_format, date_locale)}`)
+    .join(`${formatQLDate(startDeliveredDate, date_display_mode, date_format, date_locale)}`)
     .split(AppVariableEnum.EndDeliveredDate)
-    .join(`${formatEstimatedDate(endDeliveredDate, date_display_mode, date_format, date_locale)}`)
+    .join(`${formatQLDate(endDeliveredDate, date_display_mode, date_format, date_locale)}`)
     .split(AppVariableEnum.TimeCountDown)
     .join(`<span class="${CountdownContainer}"></span>`)
     .split(AppVariableEnum.Country)

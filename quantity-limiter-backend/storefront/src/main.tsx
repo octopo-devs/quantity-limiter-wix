@@ -23,8 +23,8 @@ const getInstanceId = (): string | null => {
 
 const initializeApp = async () => {
   const instanceId = getInstanceId();
-  window.estimatedShop = instanceId;
-  window.estimatedRuleLog = DEFAULT_RULE_LOG;
+  window.qlShop = instanceId;
+  window.qlRuleLog = DEFAULT_RULE_LOG;
 
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
 
@@ -47,7 +47,7 @@ const initializeApp = async () => {
         },
       });
       const appMetafields = { ...res, publicKey };
-      window.estimatedAppMetafields = appMetafields;
+      window.qlAppMetafields = appMetafields;
       const mountEl =
         document.querySelector(`.${ClassEnum.EDDBlock}`) ||
         document.getElementById('ol-storefront-root') ||
@@ -62,7 +62,7 @@ const initializeApp = async () => {
           <React.StrictMode>
             <StyleSheetManager shouldForwardProp={() => true}>
               <ShopifyContextProvider>
-                <AppContextProvider metafields={window.estimatedAppMetafields}>
+                <AppContextProvider metafields={window.qlAppMetafields}>
                   <LanguageContextProvider>
                     <QuantityLimitContextProvider>
                       <App />
@@ -87,16 +87,16 @@ const handleSaveWixData = async (topic: string, data: IWixPage | IWixProductData
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
   switch (topic) {
     case 'PageView':
-      window.estimatedCurrentPage = data as IWixPage;
-      window.estimatedCurrentProduct = undefined;
+      window.qlCurrentPage = data as IWixPage;
+      window.qlCurrentProduct = undefined;
       setTimeout(() => {
-        window.estimatedReInitApp?.();
+        window.qlReInitApp?.();
       }, 100);
       break;
     case 'ViewContent':
     case 'CustomizeProduct':
-      if ((data as IWixProductData)?.id && window.estimatedPrevProductId !== (data as IWixProductData)?.id) {
-        window.estimatedPrevProductId = (data as IWixProductData)?.id;
+      if ((data as IWixProductData)?.id && window.qlPrevProductId !== (data as IWixProductData)?.id) {
+        window.qlPrevProductId = (data as IWixProductData)?.id;
         try {
           if (instanceId && publicKey) {
             const productInfo = await callAppApi('GET', 'GET_CURRENT_PRODUCT_INFO', {
@@ -107,15 +107,15 @@ const handleSaveWixData = async (topic: string, data: IWixPage | IWixProductData
               },
             });
 
-            window.estimatedCurrentCollectionIds = productInfo?.collectionIds || [];
-            window.estimatedCurrentRibbon = productInfo?.ribbon || '';
-            window.estimatedProductVariants = productInfo?.variants || [];
+            window.qlCurrentCollectionIds = productInfo?.collectionIds || [];
+            window.qlCurrentRibbon = productInfo?.ribbon || '';
+            window.qlProductVariants = productInfo?.variants || [];
           }
         } catch (error) {
           console.log('Quantity limiter: Get current product info error', error);
         }
       }
-      window.estimatedCurrentProduct = data as IWixProductData;
+      window.qlCurrentProduct = data as IWixProductData;
       break;
     default:
       break;
@@ -127,7 +127,7 @@ const registerListener = () => {
   if (Object.prototype.hasOwnProperty.call(window, 'wixDevelopersAnalytics')) {
     window.wixDevelopersAnalytics.register('PageView', (topic: string, data: IWixPage | IWixProductData) => {
       handleSaveWixData(topic, data);
-      window.estimatedReInitApp?.();
+      window.qlReInitApp?.();
     });
     window.isEstRegistered = true;
   }

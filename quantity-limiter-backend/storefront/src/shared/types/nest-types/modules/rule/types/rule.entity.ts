@@ -40,7 +40,7 @@ export interface IRule {
   maxPrepDays: number;
   minPrepDays: number;
   enable?: boolean;
-  estimatedText?: string;
+  qlText?: string;
   showTextInCart?: boolean;
   cartPageLabelText?: string;
   cartPageDateDisplay?: string;

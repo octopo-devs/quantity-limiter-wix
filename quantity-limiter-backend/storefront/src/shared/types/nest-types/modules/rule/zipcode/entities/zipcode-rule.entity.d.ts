@@ -9,9 +9,9 @@ export declare class ZipcodeRule {
     zipcode_list: string;
     zipcode_available: boolean;
     enable: boolean;
-    show_estimated_date: boolean;
+    show_ql_date: boolean;
     minimum_days: number;
-    estimated_days: number;
+    ql_days: number;
     order_to_ship_days: number;
     ship_to_receive_days: number;
     show_text_in_cart: boolean;

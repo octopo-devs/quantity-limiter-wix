@@ -12,10 +12,10 @@ export declare class CountryRule {
   soldOutEnabled: boolean;
   soldOutCustomText: string;
   soldOutCustomTextEnabled: boolean;
-  estimated_days: number;
+  ql_days: number;
   order_to_ship_days: number;
   ship_to_receive_days: number;
-  estimated_text: string;
+  ql_text: string;
   show_text_in_cart: boolean;
   override_text_in_cart: boolean;
   cart_page_label_text: string;

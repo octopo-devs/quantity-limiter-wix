@@ -11,7 +11,7 @@ function MainContainer() {
   const [triggerValue, setTriggerValue] = useState(0);
 
   useEffect(() => {
-    window.estimatedReInitApp = () => setTriggerValue((prev) => prev + 1);
+    window.qlReInitApp = () => setTriggerValue((prev) => prev + 1);
   }, []);
 
   const mainDoms: Element[] = useMemo(() => {
