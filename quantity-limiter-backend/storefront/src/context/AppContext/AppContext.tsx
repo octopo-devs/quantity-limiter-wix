@@ -1,5 +1,7 @@
 import { ClassEnum } from '@nest/class.enum';
 import { ILanguage } from '../../shared/types/nest-types/modules/shop/entities/language.entity';
+import { ShopGeneral } from '../../shared/types/nest-types/modules/shop/entities/shop-general.entity';
+import { IShopifyAppMetafieldPayload } from '../../shared/types/nest-types/shared/api/types/shopify-api/shopify-api.interface';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import useFetch from '~/hooks/useFetch';
 import { Branding, QuantityLimitRule } from '~/shared/types/quantity-limit.types';
@@ -8,7 +10,7 @@ import { IAppContext, IAppContextProviderProps } from './app-context.interface';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 interface IState {
-  shopGeneral?: any;
+  shopGeneral?: ShopGeneral;
   rules: QuantityLimitRule[];
   branding?: Branding;
 }
@@ -40,7 +42,7 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
   }, [appMetafields]);
 
   const positionClass = useMemo(() => {
-    let position = ClassEnum.EDDBlock as string;
+    let position = ClassEnum.DefaultBlock as string;
     if (state?.shopGeneral?.custom_position) {
       position = state.shopGeneral.custom_position;
     }
@@ -62,10 +64,6 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
     // Language change handling — can be extended as needed
   }, []);
 
-  const locationInfo = useMemo(() => {
-    return appMetafields?.data?.locationInfo;
-  }, [appMetafields]);
-
   useEffect(() => {
     if (!metafields.data && metafields.manualData && metafields.shop && metafields.publicKey) {
       callAppApi('GET', 'GET_SHOP_METAFIELDS', {
@@ -73,7 +71,7 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
           shop: metafields.shop,
           key: metafields.publicKey,
         },
-      }).then((res: any) => {
+      }).then((res: IShopifyAppMetafieldPayload) => {
         window.qlAppMetafields = res;
         setAppMetafields(res);
       });
@@ -92,7 +90,6 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
         isAllApiCalled: true,
         languages,
         handleChangeSettingsLanguage,
-        locationInfo,
       }}
     >
       {children}

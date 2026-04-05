@@ -1,31 +1,21 @@
 const PreviewInEditor = () => {
   return (
-    <div className="ot-quantity-limiter-shipping">
+    <div className="ot-quantity-limiter">
       <div
-        className="ot-quantity-limiter-shipping-basic-layout"
+        className="ot-quantity-limit__message"
         style={{
-          border: '2px solid rgb(186, 230, 253)',
-          borderRadius: '8px',
-          backgroundColor: 'rgb(240, 249, 255)',
-          padding: '10px',
-          marginTop: '10px',
+          backgroundColor: '#FFD466',
+          color: '#4A4A4A',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          margin: '8px 0',
+          fontSize: '14px',
         }}
       >
-        <span className="ot-quantity-limiter-shipping-main-text" style={{ fontSize: '12px' }}>
-          <div className="ot-quantity-limiter-shipping-title-shipping">
-            <span className="ot-quantity-limiter-shipping-name-shipping">Preview Quantity limiter Delivery Datee</span>
-          </div>
-          <span className="ot-quantity-limiter-shipping-main-text-quantity-limiter">
-            ⏰ Order today within{' '}
-            <strong style={{ color: '#1750A6' }}>
-              <span className="otCountDown" />
-            </strong>{' '}
-            to get discounted price
-            <br />
-            🚚 Delivery from <strong style={{ color: '#1750A6' }}>05/07/2025</strong> to{' '}
-            <strong style={{ color: '#1750A6' }}>05/10/2025</strong>
-          </span>
-        </span>
+        <span>Preview: Maximum 5 items per order</span>
       </div>
     </div>
   );

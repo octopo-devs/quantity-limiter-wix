@@ -1,10 +1,8 @@
-import { WixStockingStatus } from '@nest/shared.enum';
-
 export interface IWixCartLineItem {
   id: number;
   key: string;
   product_id: number;
-  properties: Record<string, any>;
+  properties: Record<string, unknown>;
   title: string;
   product_title?: string;
   vendor: string;
@@ -52,6 +50,10 @@ export interface IWixVariant {
   sku: string;
 }
 
+export interface IWixCartEventData {
+  cartId: string;
+}
+
 export type IWixProductData = {
   id: string;
   origin: string;
@@ -72,7 +74,7 @@ export type IWixProductData = {
   variantId?: string;
   optionsSelectionsIds?: number[];
   weight?: number;
-  dimension3?: WixStockingStatus;
+  dimension3?: string;
   options?: {
     id: number;
     value: string;

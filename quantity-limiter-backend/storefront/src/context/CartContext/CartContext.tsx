@@ -36,13 +36,30 @@ function clearCartId() {
 }
 
 // ---------------------------------------------------------------------------
+// Wix Cart API response shape (subset of ecom/v1/carts/{cartId})
+// ---------------------------------------------------------------------------
+
+interface IWixCartLineItemResponse {
+  _id: string;
+  catalogReference?: { catalogItemId: string };
+  quantity: number;
+  price?: { amount: string };
+  physicalProperties?: { weight?: number; sku?: string };
+  productName?: { original?: string; translated?: string };
+}
+
+interface IWixCartResponse {
+  lineItems?: IWixCartLineItemResponse[];
+}
+
+// ---------------------------------------------------------------------------
 // Parse Wix cart API response into ICartItem[]
 // ---------------------------------------------------------------------------
 
-function parseCartLineItems(cart: any): ICartItem[] {
+function parseCartLineItems(cart: IWixCartResponse): ICartItem[] {
   if (!cart?.lineItems?.length) return [];
 
-  return cart.lineItems.map((item: any) => ({
+  return cart.lineItems.map((item) => ({
     productId: item.catalogReference?.catalogItemId || '',
     variantId: item._id || '',
     quantity: item.quantity || 0,
@@ -71,7 +88,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     if (!shop || !publicKey) return false;
 
     try {
-      const cart = await callAppApi('GET', 'GET_CURRENT_CART_INFO', {
+      const cart: IWixCartResponse = await callAppApi('GET', 'GET_CURRENT_CART_INFO', {
         params: { shop, key: publicKey, cartId },
       });
 

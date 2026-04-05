@@ -1,6 +1,5 @@
 import { ClassEnum } from '@nest/class.enum.ts';
-import { DEFAULT_RULE_LOG } from '@nest/global.ts';
-import { IWixPage, IWixProductData } from '@nest/wix.interface.ts';
+import { IWixCartEventData, IWixPage, IWixProductData } from '@nest/wix.interface.ts';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { StyleSheetManager } from 'styled-components';
@@ -20,7 +19,7 @@ import { QuantityLimitStyled } from '~/styled/quantity-limit-styled.ts';
 // ---------------------------------------------------------------------------
 
 const getInstanceId = (): string | null => {
-  if ((window as any).__OL_INSTANCE_ID) return (window as any).__OL_INSTANCE_ID;
+  if (window.__OL_INSTANCE_ID) return window.__OL_INSTANCE_ID;
   const scriptElement = document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'quantity-limiter-script');
   return scriptElement?.getAttribute('data-instance-id') || null;
 };
@@ -32,7 +31,6 @@ const getInstanceId = (): string | null => {
 const initializeApp = async () => {
   const instanceId = getInstanceId();
   window.qlShop = instanceId;
-  window.qlRuleLog = DEFAULT_RULE_LOG;
 
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
 
@@ -58,7 +56,7 @@ const initializeApp = async () => {
     window.qlAppMetafields = appMetafields;
 
     const mountEl =
-      document.querySelector(`.${ClassEnum.EDDBlock}`) ||
+      document.querySelector(`.${ClassEnum.DefaultBlock}`) ||
       document.getElementById('ol-storefront-root') ||
       document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-quantity-limiter-script');
 
@@ -95,7 +93,7 @@ const initializeApp = async () => {
 
 const isOverlayPage = (pageType: string) => pageType.includes('side_cart') || pageType.includes('popup');
 
-const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData) => {
+const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData | IWixCartEventData) => {
   const instanceId = getInstanceId();
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
   console.log('handle Wix event', topic, data);
@@ -150,15 +148,17 @@ const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData) =
       break;
 
     case 'AddToCart':
-    case 'addToCart':
-      if ((data as any)?.cartId) {
-        window.qlCartId = (data as any).cartId;
+    case 'addToCart': {
+      const cartData = data as IWixCartEventData;
+      if (cartData?.cartId) {
+        window.qlCartId = cartData.cartId;
       }
       setTimeout(() => {
         window.qlCartRefresh?.();
         window.qlReInitApp?.();
       }, 500);
       break;
+    }
 
     case 'RemoveFromCart':
     case 'removeFromCart':

@@ -1,7 +1,6 @@
 import { createContext, useEffect, useMemo } from 'react';
 import { ILanguageContext } from './language-context.interface';
 import useAppContext from '../AppContext/useAppContext';
-import { DetectionMethod } from '@nest/nest-types/modules/shop/types/shop.enum';
 import useShopifyContext from '../ShopifyContext/useShopifyContext';
 import dayjs from 'dayjs';
 
@@ -9,28 +8,15 @@ const LanguageContext = createContext<ILanguageContext | undefined>(undefined);
 
 const LanguageContextProvider = ({ children }: { children: React.ReactNode }) => {
   const { locale } = useShopifyContext();
-  const { languages, shopGeneral, handleChangeSettingsLanguage, locationInfo } = useAppContext();
+  const { languages, shopGeneral, handleChangeSettingsLanguage } = useAppContext();
+
   const languageCode = useMemo(() => {
-    let languageCode = undefined;
-    switch (shopGeneral?.detectionMethod) {
-      case DetectionMethod.Url:
-        languageCode = window.location.pathname.split('/')[1];
-        break;
-      case DetectionMethod.ShopLocale:
-        languageCode = locale;
-        break;
-      case DetectionMethod.BrowserLanguage:
-        languageCode = window.navigator.language;
-        break;
-      case DetectionMethod.IpAddress:
-        languageCode = locationInfo?.language_code;
-        break;
-      default:
-        break;
-    }
-    window.qlDetectedLanguageCode = languageCode;
-    return languageCode;
-  }, [locale, locationInfo?.language_code, shopGeneral?.detectionMethod]);
+    // Detect language from Wix locale or URL path
+    const fromUrl = window.location.pathname.split('/')[1];
+    const code = locale || fromUrl;
+    window.qlDetectedLanguageCode = code;
+    return code;
+  }, [locale]);
 
   const language = useMemo(() => {
     return languages

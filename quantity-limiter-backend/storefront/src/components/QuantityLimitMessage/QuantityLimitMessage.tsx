@@ -1,7 +1,6 @@
 import React from 'react';
 import useAppContext from '~/context/AppContext/useAppContext';
 import useQuantityLimitContext from '~/context/QuantityLimitContext/useQuantityLimitContext';
-import { Branding } from '~/shared/types/quantity-limit.types';
 import { replacePlaceholder } from '~/shared/utils/string';
 
 const WarningIcon: React.FC<{ color: string }> = ({ color }) => (
@@ -27,7 +26,7 @@ function QuantityLimitMessage() {
   const { shopGeneral } = useAppContext();
   const { results } = useQuantityLimitContext();
 
-  const branding: Branding | undefined = (shopGeneral as any)?.branding;
+  const branding = shopGeneral?.branding;
   const entries = Object.entries(results);
   if (!entries.length) return null;
 
@@ -40,7 +39,7 @@ function QuantityLimitMessage() {
   const messageStyle: React.CSSProperties = {
     fontFamily: branding?.fontFamily || 'inherit',
     fontSize: branding?.fontSize ? `${branding.fontSize}px` : '14px',
-    textAlign: (branding?.textAlign?.toLowerCase() as any) || 'left',
+    textAlign: (branding?.textAlign?.toLowerCase() as React.CSSProperties['textAlign']) || 'left',
     color: branding?.textColor || '#4A4A4A',
     backgroundColor: branding?.backgroundColor || '#FFD466',
     padding: '8px 12px',
