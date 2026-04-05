@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useAppContext from '../context/AppContext/useAppContext';
-import useQuantityLimitContext from '../context/QuantityLimitContext/useQuantityLimitContext';
-import useShopifyContext from '../context/ShopifyContext/useShopifyContext';
+import { useProductValidation } from '../hooks/useProductValidation';
 import { useButtonController } from '../hooks/useButtonController';
 import { useQuantityInputObserver } from '../hooks/useQuantityInputObserver';
 import { ClassEnum } from '../shared/types/class.enum';
@@ -11,21 +10,16 @@ import QuantityLimitMessage from './QuantityLimitMessage/QuantityLimitMessage';
 
 function MainContainer() {
   const { positionClass, shopGeneral } = useAppContext();
-  const { hasViolation } = useQuantityLimitContext();
-  const { currentPage } = useShopifyContext();
+  const { hasViolation } = useProductValidation();
   const { Main } = ClassEnum;
   const [triggerValue, setTriggerValue] = useState(0);
 
-  const isCartPage = useMemo(() => {
-    return currentPage?.toLowerCase().includes('cart') || false;
-  }, [currentPage]);
-
   useEffect(() => {
-    window.qlReInitApp = () => setTriggerValue((prev) => prev + 1);
+    window.qlTriggerRerender = () => setTriggerValue((prev) => prev + 1);
   }, []);
 
-  // Phase 2: Disable buttons when limits violated
-  useButtonController({ hasViolation, isCartPage });
+  // Disable add-to-cart buttons when limits violated
+  useButtonController({ hasViolation });
 
   // Phase 3: Monitor quantity input changes
   useQuantityInputObserver();

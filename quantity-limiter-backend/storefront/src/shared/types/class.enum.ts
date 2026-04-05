@@ -1,6 +1,6 @@
 export enum ClassEnum {
-  Main = 'ot-quantity-limiter',
-  DefaultBlock = 'synctrack-edd',
+  Main = 'ql-quantity-limiter',
+  DefaultBlock = 'quantity-limiter',
   ButtonCartAdd = 'button[data-hook*="add-to-cart"]',
   FormCartAdd = 'form[data-hook*="add-to-cart"]',
 }

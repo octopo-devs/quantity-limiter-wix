@@ -19,7 +19,7 @@ const QUANTITY_BUTTON_SELECTORS = [
 
 /**
  * Monitors quantity input fields on Wix product pages.
- * Updates window.qlQuantityOnPage and triggers re-render on change.
+ * Updates window.qlCurrentProduct.quantity and triggers re-render on change.
  * Uses MutationObserver to handle Wix SPA navigation.
  */
 export function useQuantityInputObserver() {
@@ -33,12 +33,12 @@ export function useQuantityInputObserver() {
 
     const onQuantityChange = () => {
       const input = document.querySelector(QUANTITY_INPUT_SELECTORS);
-      if (!input) return;
+      if (!input || !window.qlCurrentProduct) return;
 
       const quantity = readQuantity(input);
-      if (window.qlQuantityOnPage !== quantity) {
-        window.qlQuantityOnPage = quantity;
-        window.qlReInitApp?.();
+      if (window.qlCurrentProduct.quantity !== quantity) {
+        window.qlCurrentProduct = { ...window.qlCurrentProduct, quantity };
+        window.qlTriggerRerender?.();
       }
     };
 
@@ -60,10 +60,10 @@ export function useQuantityInputObserver() {
 
       // Read initial value
       const firstInput = document.querySelector(QUANTITY_INPUT_SELECTORS);
-      if (firstInput) {
+      if (firstInput && window.qlCurrentProduct) {
         const quantity = readQuantity(firstInput);
-        if (window.qlQuantityOnPage !== quantity) {
-          window.qlQuantityOnPage = quantity;
+        if (window.qlCurrentProduct.quantity !== quantity) {
+          window.qlCurrentProduct = { ...window.qlCurrentProduct, quantity };
         }
       }
     };

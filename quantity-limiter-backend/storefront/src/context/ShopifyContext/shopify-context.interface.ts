@@ -1,14 +1,8 @@
-import { IWixCurrentVariant, IWixProductData, IWixVariant } from '@nest/wix.interface';
+import { QlCurrentProduct, QlProductData } from '~/shared/types/global';
 
 export interface IShopifyContext {
   locale: string;
   currentPage: string;
-  currentProduct?: IWixProductData;
-  currentVariant?: IWixCurrentVariant;
-  currentProductInfo: {
-    variants?: IWixVariant[];
-    collections?: string[];
-  };
-  selectedVariantId?: string;
-  pageQuantity: number;
+  currentProduct?: QlCurrentProduct;
+  productData?: QlProductData;
 }

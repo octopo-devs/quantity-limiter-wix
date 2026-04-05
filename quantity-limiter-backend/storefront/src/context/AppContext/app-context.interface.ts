@@ -13,6 +13,7 @@ export interface IAppContext {
   rootLink: string;
   shopGeneral?: ShopGeneral;
   rules: QuantityLimitRule[];
+  shopData: { currency: string; weightUnit: string };
   branding?: Branding;
   isAppEnabled: boolean;
   positionClass: string;

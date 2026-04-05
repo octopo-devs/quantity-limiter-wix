@@ -1,6 +1,6 @@
 import React from 'react';
 import useAppContext from '~/context/AppContext/useAppContext';
-import useQuantityLimitContext from '~/context/QuantityLimitContext/useQuantityLimitContext';
+import { useProductValidation } from '~/hooks/useProductValidation';
 import { replacePlaceholder } from '~/shared/utils/string';
 
 const WarningIcon: React.FC<{ color: string }> = ({ color }) => (
@@ -24,7 +24,7 @@ const WarningIcon: React.FC<{ color: string }> = ({ color }) => (
 
 function QuantityLimitMessage() {
   const { shopGeneral } = useAppContext();
-  const { results } = useQuantityLimitContext();
+  const { results } = useProductValidation();
 
   const branding = shopGeneral?.branding;
   const entries = Object.entries(results);

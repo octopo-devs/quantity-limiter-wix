@@ -41,6 +41,14 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
     return { rootLink, enableAppSetting };
   }, [appMetafields]);
 
+  const shopData = useMemo(
+    () => ({
+      currency: state.shopGeneral?.currency || 'USD',
+      weightUnit: state.shopGeneral?.weightUnit || 'kg',
+    }),
+    [state.shopGeneral],
+  );
+
   const positionClass = useMemo(() => {
     let position = ClassEnum.DefaultBlock as string;
     if (state?.shopGeneral?.custom_position) {
@@ -84,6 +92,7 @@ const AppContextProvider = ({ children, metafields }: IAppContextProviderProps) 
         rootLink,
         shopGeneral: state?.shopGeneral,
         rules: state.rules,
+        shopData,
         branding: state.branding,
         isAppEnabled,
         positionClass,

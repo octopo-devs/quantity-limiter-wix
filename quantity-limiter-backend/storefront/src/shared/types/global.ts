@@ -1,7 +1,24 @@
 import { IShopifyAppMetafieldPayload } from './nest-types/shared/api/types/shopify-api/shopify-api.interface';
-import { IWixCartEventData, IWixPage, IWixProductData, IWixVariant } from './wix.interface';
+import { IWixPage, IWixProductData, IWixVariant } from './wix.interface';
 
-type WixEventData = IWixPage | IWixProductData | IWixCartEventData;
+export interface QlProductData {
+  id: string;
+  name: string;
+  price: number;
+  weight?: number;
+  sku?: string;
+  collections: string[];
+  variants: IWixVariant[];
+  ribbon: string;
+}
+
+export interface QlCurrentProduct {
+  id: string;
+  quantity: number;
+  selectedVariantId?: string;
+}
+
+type WixEventData = IWixPage | IWixProductData;
 
 declare global {
   interface Window {
@@ -17,15 +34,14 @@ declare global {
     // App registration state
     isEstRegistered: boolean;
 
-    // Page & product state (set by analytics event handlers)
+    // Product data cache (keyed by productId)
+    qlProducts: Map<string, QlProductData>;
+
+    // Current product interaction state
+    qlCurrentProduct?: QlCurrentProduct;
+
+    // Page state
     qlCurrentPage: IWixPage;
-    qlCurrentProduct: IWixProductData;
-    qlCurrentCollectionIds: string[];
-    qlCurrentRibbon: string;
-    qlPrevProductId?: string;
-    qlProductVariants: IWixVariant[];
-    qlSelectedVariant?: IWixVariant;
-    qlQuantityOnPage?: number;
 
     // App config
     qlShop: string;
@@ -36,12 +52,7 @@ declare global {
     // Session tracking
     qlVisitorId?: string;
 
-    // Cart state
-    qlCartId?: string;
-    qlCartRefresh?: () => void;
-    qlCartClear?: () => void;
-
     // Re-render trigger
-    qlReInitApp: () => void;
+    qlTriggerRerender: () => void;
   }
 }

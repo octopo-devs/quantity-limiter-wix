@@ -1,5 +1,5 @@
 import { ClassEnum } from '@nest/class.enum.ts';
-import { IWixCartEventData, IWixPage, IWixProductData } from '@nest/wix.interface.ts';
+import { IWixPage, IWixProductData } from '@nest/wix.interface.ts';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { StyleSheetManager } from 'styled-components';
@@ -7,12 +7,8 @@ import { callAppApi } from '~/apis/index.ts';
 import { generateHmacKey } from '~/shared/utils/functions.ts';
 import App from './App.tsx';
 import { AppContextProvider } from './context/AppContext/AppContext.tsx';
-import { CartContextProvider } from './context/CartContext/CartContext.tsx';
 import { LanguageContextProvider } from './context/LanguageContext/LanguageContext.tsx';
-import { QuantityLimitContextProvider } from './context/QuantityLimitContext/QuantityLimitContext.tsx';
 import { ShopifyContextProvider } from './context/ShopifyContext/ShopifyContext.tsx';
-import PreviewInEditor from '~/components/PreviewInEditor/index.tsx';
-import { QuantityLimitStyled } from '~/styled/quantity-limit-styled.ts';
 
 // ---------------------------------------------------------------------------
 // Instance ID
@@ -28,25 +24,13 @@ const getInstanceId = (): string | null => {
 // App bootstrap
 // ---------------------------------------------------------------------------
 
-const initializeApp = async () => {
+const mountApp = async () => {
   const instanceId = getInstanceId();
   window.qlShop = instanceId;
 
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
 
   try {
-    const isEditorMode = window.location.origin === 'https://static.parastorage.com';
-
-    if (isEditorMode) {
-      ReactDOM.createRoot(document.body!).render(
-        <>
-          <QuantityLimitStyled />
-          <PreviewInEditor />
-        </>,
-      );
-      return;
-    }
-
     if (!publicKey) return;
 
     const res = await callAppApi('GET', 'GET_SHOP_METAFIELDS', {
@@ -58,7 +42,7 @@ const initializeApp = async () => {
     const mountEl =
       document.querySelector(`.${ClassEnum.DefaultBlock}`) ||
       document.getElementById('ol-storefront-root') ||
-      document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'syntrack-quantity-limiter-script');
+      document.getElementById(import.meta.env.VITE_APP_ID_SCRIPT || 'quantity-limiter-script');
 
     if (!mountEl) {
       console.warn('Order limiter: No mount element found');
@@ -70,13 +54,9 @@ const initializeApp = async () => {
         <StyleSheetManager shouldForwardProp={() => true}>
           <ShopifyContextProvider>
             <AppContextProvider metafields={appMetafields}>
-              <CartContextProvider>
-                <LanguageContextProvider>
-                  <QuantityLimitContextProvider>
-                    <App />
-                  </QuantityLimitContextProvider>
-                </LanguageContextProvider>
-              </CartContextProvider>
+              <LanguageContextProvider>
+                <App />
+              </LanguageContextProvider>
             </AppContextProvider>
           </ShopifyContextProvider>
         </StyleSheetManager>
@@ -93,7 +73,7 @@ const initializeApp = async () => {
 
 const isOverlayPage = (pageType: string) => pageType.includes('side_cart') || pageType.includes('popup');
 
-const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData | IWixCartEventData) => {
+const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData) => {
   const instanceId = getInstanceId();
   const publicKey = await generateHmacKey(instanceId, import.meta.env.VITE_PUBLIC_API_HMAC_KEY);
   console.log('handle Wix event', topic, data);
@@ -103,10 +83,6 @@ const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData | 
       const page = data as IWixPage;
       window.qlCurrentPage = page;
 
-      // Detect session change (logout/login): if visitorId changed, clear stale cart
-      if (page?.visitorId && window.qlVisitorId && page.visitorId !== window.qlVisitorId) {
-        window.qlCartClear?.();
-      }
       if (page?.visitorId) {
         window.qlVisitorId = page.visitorId;
       }
@@ -114,59 +90,62 @@ const handleWixEvent = async (topic: string, data: IWixPage | IWixProductData | 
       // Don't clear product data for overlay pages (side cart, popups)
       if (!isOverlayPage(page?.pageTypeIdentifier || '')) {
         window.qlCurrentProduct = undefined;
-        window.qlQuantityOnPage = undefined;
       }
 
-      setTimeout(() => window.qlReInitApp?.(), 100);
+      setTimeout(() => window.qlTriggerRerender?.(), 100);
       break;
     }
 
     case 'ViewContent': {
       const product = data as IWixProductData;
-      if (product?.id && window.qlPrevProductId !== product.id) {
-        window.qlPrevProductId = product.id;
+
+      // Cache static product data in qlProducts (fetch from API only once per product)
+      if (product?.id && !window.qlProducts.has(product.id)) {
+        const productData = {
+          id: product.id,
+          name: product.name || '',
+          price: product.price || 0,
+          weight: product.weight,
+          sku: product.sku,
+          collections: [] as string[],
+          variants: product.variants || [],
+          ribbon: '',
+        };
+
         try {
           if (instanceId && publicKey) {
             const info = await callAppApi('GET', 'GET_CURRENT_PRODUCT_INFO', {
               params: { shop: instanceId, key: publicKey, productId: product.id },
             });
-            window.qlCurrentCollectionIds = info?.collectionIds || [];
-            window.qlCurrentRibbon = info?.ribbon || '';
-            window.qlProductVariants = info?.variants || [];
+            productData.collections = info?.collectionIds || [];
+            productData.ribbon = info?.ribbon || '';
+            productData.variants = info?.variants || productData.variants;
           }
         } catch (error) {
           console.log('Quantity limiter: Get current product info error', error);
         }
+
+        window.qlProducts.set(product.id, productData);
       }
-      window.qlCurrentProduct = product;
+
+      window.qlCurrentProduct = {
+        id: product.id,
+        quantity: 1,
+        selectedVariantId: product.variantId,
+      };
       break;
     }
 
-    case 'CustomizeProduct':
-      window.qlCurrentProduct = data as IWixProductData;
-      window.qlReInitApp?.();
-      break;
-
-    case 'AddToCart':
-    case 'addToCart': {
-      const cartData = data as IWixCartEventData;
-      if (cartData?.cartId) {
-        window.qlCartId = cartData.cartId;
-      }
-      setTimeout(() => {
-        window.qlCartRefresh?.();
-        window.qlReInitApp?.();
-      }, 500);
+    case 'CustomizeProduct': {
+      const product = data as IWixProductData;
+      window.qlCurrentProduct = {
+        id: product.id,
+        quantity: window.qlCurrentProduct?.quantity || 1,
+        selectedVariantId: product.variantId,
+      };
+      window.qlTriggerRerender?.();
       break;
     }
-
-    case 'RemoveFromCart':
-    case 'removeFromCart':
-      setTimeout(() => {
-        window.qlCartRefresh?.();
-        window.qlReInitApp?.();
-      }, 500);
-      break;
   }
 };
 
@@ -181,11 +160,7 @@ const registerListener = () => {
   const appId = import.meta.env.VITE_APP_ID_SCRIPT || 'quantity-limiter';
 
   window.wixDevelopersAnalytics.register(appId, (eventName, data) => {
-    handleWixEvent(eventName, data);
-
-    if (['PageView', 'ViewContent', 'CustomizeProduct'].includes(eventName)) {
-      window.qlReInitApp?.();
-    }
+    handleWixEvent(eventName, data as IWixPage | IWixProductData);
   });
 
   window.isEstRegistered = true;
@@ -195,15 +170,14 @@ const registerListener = () => {
 // Entry point
 // ---------------------------------------------------------------------------
 
-const boot = () => {
-  initializeApp();
-  if (window.location.origin !== 'https://static.parastorage.com') {
-    registerListener();
-  }
+const bootstrap = () => {
+  if (!window.qlProducts) window.qlProducts = new Map();
+  registerListener();
+  mountApp();
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
+  document.addEventListener('DOMContentLoaded', bootstrap);
 } else {
-  boot();
+  bootstrap();
 }
