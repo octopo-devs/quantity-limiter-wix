@@ -9,4 +9,6 @@ export interface IShopifyContext {
     variants?: IWixVariant[];
     collections?: string[];
   };
+  selectedVariantId?: string;
+  pageQuantity: number;
 }

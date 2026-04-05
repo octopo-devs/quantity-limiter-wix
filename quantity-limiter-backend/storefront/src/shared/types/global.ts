@@ -46,36 +46,48 @@ export const DEFAULT_RULE_LOG: IRuleLog = {
 
 declare global {
   interface Window {
-    test: any;
+    // Wix platform APIs
     wixDevelopersAnalytics: {
-      register: (e, t) => any;
-      triggerEvent: (e, t) => void;
+      register: (appId: string, callback: (eventName: string, data: any) => void) => any;
+      triggerEvent: (eventName: string, data: any) => void;
     };
-    isEstRegistered: boolean;
     wixEmbedsAPI: {
       getLanguage: () => string;
     };
 
+    // App registration state
+    isEstRegistered: boolean;
+
+    // Page & product state (set by analytics event handlers)
     qlCurrentPage: IWixPage;
     qlCurrentProduct: IWixProductData;
     qlCurrentCollectionIds: string[];
     qlCurrentRibbon: string;
     qlPrevProductId?: string;
     qlProductVariants: IWixVariant[];
+    qlSelectedVariant?: IWixVariant;
+    qlQuantityOnPage?: number;
+
+    // App config
     qlShop: string;
     qlAppMetafields: IShopifyAppMetafieldPayload;
-    qlSelectedVariant?: IWixVariant;
     qlDetectedLanguageCode?: string;
     qlRuleLog: IRuleLog;
-    qlReInitApp: () => void;
     qlIsApiCalled: {
       locationInfo: boolean;
       allCountries: boolean;
     };
-    qlQuantityOnPage: number;
+    __OL_INSTANCE_ID?: string;
+
+    // Session tracking
+    qlVisitorId?: string;
+
+    // Cart state
     qlCartId?: string;
     qlCartRefresh?: () => void;
     qlCartClear?: () => void;
-    __OL_INSTANCE_ID?: string;
+
+    // Re-render trigger
+    qlReInitApp: () => void;
   }
 }

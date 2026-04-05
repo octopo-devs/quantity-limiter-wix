@@ -257,9 +257,8 @@ function calculateTotal(
   return variant.quantity || 0;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function shouldShowMessage(rule: QuantityLimitRule, total: number, _isCartPage: boolean): boolean {
-  console.log({ _isCartPage });
-
   if (rule.notifyAboutLimitWhen === NotificationTrigger.NO_NOTIFICATION) return false;
 
   if (rule.minQty && total < rule.minQty) return true;
@@ -272,9 +271,9 @@ function formatMessage(
   rule: QuantityLimitRule,
   total: number,
   shopData: { currency: string; weightUnit: string },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _languageCode: string,
 ): string {
-  console.log({ _languageCode });
 
   // Check ORDER type with special condition types
   if (rule.type === RuleType.ORDER && rule.ruleOrder) {
@@ -318,11 +317,13 @@ function formatMessage(
   if (rule.maxQty && total > rule.maxQty) {
     return (rule.maxQtyLimitMessage || '')
       .replace(/\{\{max\}\}/g, String(rule.maxQty))
+      .replace(/\{\{max_quantity\}\}/g, String(rule.maxQty))
       .replace(/\{\{maximum_product_quantity\}\}/g, String(rule.maxQty));
   }
   if (rule.minQty && total < rule.minQty) {
     return (rule.minQtyLimitMessage || '')
       .replace(/\{\{min\}\}/g, String(rule.minQty))
+      .replace(/\{\{min_quantity\}\}/g, String(rule.minQty))
       .replace(/\{\{minimum_product_quantity\}\}/g, String(rule.minQty));
   }
 

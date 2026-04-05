@@ -81,6 +81,7 @@ export class WixApiService {
     service: WIX_API_SERVICE<M>,
     payload: IApiPayload,
     instanceId: string,
+    extraHeaders?: Record<string, string>,
   ) {
     const { param, ...data } = payload;
     let accessToken = await this.handleAccessTokenFromRedis(instanceId);
@@ -92,20 +93,22 @@ export class WixApiService {
     if (!endpoint) throw new InternalServerErrorException(`Service ${String(service)} not found`);
     if (param) endpoint += param;
 
+    const headers = { Authorization: accessToken, ...extraHeaders };
+
     try {
       let result;
       if (method === 'GET') {
         result = await this.wixAxios.get(endpoint, {
           params: data,
-          headers: { Authorization: accessToken },
+          headers,
         });
       } else if (method === 'POST' || method === 'PUT') {
         result = await this.wixAxios[method.toLowerCase()](endpoint, data, {
-          headers: { Authorization: accessToken },
+          headers,
         });
       } else if (method === 'DELETE') {
         result = await this.wixAxios.delete(endpoint, {
-          headers: { Authorization: accessToken },
+          headers,
         });
       }
       return result?.data || result?.status;
@@ -125,12 +128,12 @@ export class WixApiService {
     }
   }
 
-  async getCurrentCartInfoV1(shop: string) {
+  async getCartById(shop: string, cartId: string) {
     try {
-      const res = await this.callWixServices('GET', 'CURRENT_CART', {}, shop);
+      const res = await this.callWixServices('GET', 'CART_BY_ID', { param: cartId }, shop);
       return res?.cart || {};
     } catch (error) {
-      console.log(error);
+      console.log('[Cart API] getCartById error:', error.message);
       return {};
     }
   }

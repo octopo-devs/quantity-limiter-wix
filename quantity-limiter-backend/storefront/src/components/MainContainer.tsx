@@ -1,5 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import useAppContext from '../context/AppContext/useAppContext';
+import useQuantityLimitContext from '../context/QuantityLimitContext/useQuantityLimitContext';
+import useShopifyContext from '../context/ShopifyContext/useShopifyContext';
+import { useButtonController } from '../hooks/useButtonController';
+import { useQuantityInputObserver } from '../hooks/useQuantityInputObserver';
 import { ClassEnum } from '../shared/types/class.enum';
 import { RenderMethod } from '../shared/types/shared.enum';
 import Portal from './Portal/Portal';
@@ -7,12 +11,24 @@ import QuantityLimitMessage from './QuantityLimitMessage/QuantityLimitMessage';
 
 function MainContainer() {
   const { positionClass, shopGeneral } = useAppContext();
+  const { hasViolation } = useQuantityLimitContext();
+  const { currentPage } = useShopifyContext();
   const { Main } = ClassEnum;
   const [triggerValue, setTriggerValue] = useState(0);
+
+  const isCartPage = useMemo(() => {
+    return currentPage?.toLowerCase().includes('cart') || false;
+  }, [currentPage]);
 
   useEffect(() => {
     window.qlReInitApp = () => setTriggerValue((prev) => prev + 1);
   }, []);
+
+  // Phase 2: Disable buttons when limits violated
+  useButtonController({ hasViolation, isCartPage });
+
+  // Phase 3: Monitor quantity input changes
+  useQuantityInputObserver();
 
   const mainDoms: Element[] = useMemo(() => {
     return Array.from(document.querySelectorAll(`.${Main}`));
@@ -52,9 +68,16 @@ function MainContainer() {
   );
 
   if (!mainDoms.length) {
-    const buttons = getPositionDoms(positionClass);
-    buttons.forEach((position) => {
-      createAndInsertMainDiv(position, shopGeneral?.render_method as RenderMethod);
+    let positions = getPositionDoms(positionClass);
+
+    // Fallback: if no custom position found, insert before the add-to-cart button
+    if (!positions.length) {
+      positions = getPositionDoms(ClassEnum.ButtonCartAdd);
+    }
+
+    const renderMethod = (shopGeneral?.render_method as RenderMethod) || RenderMethod.Before;
+    positions.forEach((position) => {
+      createAndInsertMainDiv(position, renderMethod);
     });
   }
 

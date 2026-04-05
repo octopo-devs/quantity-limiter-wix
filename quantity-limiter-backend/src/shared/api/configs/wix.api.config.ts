@@ -17,7 +17,8 @@ export const WIX_API = {
     PRODUCT_V1: '/stores-reader/v1/products/',
     COLLECTION_V1: '/stores-reader/v1/collections/',
     PUBLIC_PRICING_PLAN: '/apps-plans/v1/apps-plans/',
-    CURRENT_CART: 'ecom/v1/carts/current',
+    CURRENT_CART: '/ecom/v1/carts/current',
+    CART_BY_ID: '/ecom/v1/carts/',
   },
   POST: {
     TOKEN: '/oauth/access',
@@ -27,7 +28,7 @@ export const WIX_API = {
     OAUTH: '/oauth2/token',
     PRODUCTS_V1: '/stores-reader/v1/products/query',
     COLLECTIONS_V1: '/stores-reader/v1/collections/query',
-    CURRENT_CART: 'ecom/v1/carts/current/estimate-totals',
+    CURRENT_CART: '/ecom/v1/carts/current/estimate-totals',
   },
   PUT: {},
   DELETE: {},
