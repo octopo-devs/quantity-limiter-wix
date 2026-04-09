@@ -80,3 +80,16 @@ export type IWixProductData = {
     value: string;
   }[];
 };
+
+export interface IWixProductPageLoaded {
+  productId: string;
+  name: string;
+  currency: string;
+  price: number;
+  sku: string;
+  visitorId: string;
+  _internalEventId: string;
+  isPremium: boolean;
+  userId: string;
+  metaSiteId: string;
+}
