@@ -127,7 +127,7 @@ function shouldApplyProductRule(rule: QuantityLimitRule, variant: WixVariant): b
     case ProductSelectionType.ALL_PRODUCTS:
       return true;
     case ProductSelectionType.SPECIFIC_PRODUCTS:
-      return rp.productIds?.includes(variant.productId) || false;
+      return rp.productIds?.some((p) => p.productId === variant.productId && (!p.variantId || p.variantId === variant.id)) || false;
     case ProductSelectionType.GROUP_OF_PRODUCTS:
       return checkGroupConditions(rp, variant);
     default:

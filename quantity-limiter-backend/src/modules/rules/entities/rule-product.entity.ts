@@ -1,7 +1,7 @@
 import { Conjunction } from 'src/shared/common/types/shared.enum';
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { ProductSelectionType } from '../types/rule.enum';
-import { RuleGroupProductCondition } from '../types/rule.interface';
+import { RuleGroupProductCondition, RuleProductSelection } from '../types/rule.interface';
 import { Rule } from './rule.entity';
 
 @Entity('rule_products')
@@ -17,7 +17,7 @@ export class RuleProduct {
   conditionType: ProductSelectionType;
 
   @Column({ type: 'json', nullable: true })
-  productIds: string[];
+  productIds: RuleProductSelection[];
 
   @Column({ type: 'json', nullable: true })
   groupProducts: RuleGroupProductCondition[];

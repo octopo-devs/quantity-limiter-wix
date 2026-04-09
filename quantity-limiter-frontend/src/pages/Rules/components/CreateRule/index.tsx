@@ -31,12 +31,21 @@ function getProductImage(product: IWixProduct): string | undefined {
   return product.media?.mainMedia?.image?.url || product.media?.items?.[0]?.image?.url;
 }
 
-function mapWixProductsToSelected(products: IWixProduct[]): SelectedProduct[] {
+function mapWixProductsToSelected(
+  products: IWixProduct[],
+  savedProductIds?: { productId: string; variantId?: string }[],
+): SelectedProduct[] {
   const items: SelectedProduct[] = [];
+  const variantEntries = savedProductIds?.filter((p) => p.variantId);
+  const variantSet =
+    variantEntries && variantEntries.length > 0
+      ? new Set(variantEntries.map((p) => `${p.productId}:${p.variantId}`))
+      : null;
   for (const product of products) {
     const image = getProductImage(product);
     if (product.variants && product.variants.length > 0) {
       for (const variant of product.variants) {
+        if (variantSet && !variantSet.has(`${product.id}:${variant.id}`)) continue;
         const choices = variant.choices || {};
         const parts: string[] = [];
         if (choices.Size) parts.push(`Size: ${choices.Size}`);
@@ -71,7 +80,10 @@ export default function CreateRule() {
   const collapseSection = useAppSelector(collapseSectionSelector);
   const [nameError, setNameError] = useState<string | undefined>();
   const { data: appearanceData } = apiCaller.useGetAppearanceQuery();
-  const { data: ruleData, isLoading: isRuleLoading } = apiCaller.useGetRuleByIdQuery(id!, { skip: !id });
+  const { data: ruleData, isLoading: isRuleLoading } = apiCaller.useGetRuleByIdQuery(id!, {
+    skip: !id,
+    refetchOnMountOrArgChange: true,
+  });
   const [fetchWixProducts] = apiCaller.useLazyGetWixProductsQuery();
   const [fetchCollections] = apiCaller.useLazyGetCollectionsQuery();
   const [createRuleMutation, { isLoading: isCreating }] = apiCaller.useCreateRuleMutation();
@@ -103,18 +115,19 @@ export default function CreateRule() {
     );
 
     if (rule.ruleProduct?.productIds?.length) {
-      const ids = rule.ruleProduct.productIds;
-      fetchWixProducts({ page: 1, perPage: ids.length, specificIds: ids.join(',') })
+      const savedProductIds = rule.ruleProduct.productIds;
+      const uniqueProductIds = Array.from(new Set(savedProductIds.map((p) => p.productId)));
+      fetchWixProducts({ page: 1, perPage: uniqueProductIds.length, specificIds: uniqueProductIds.join(',') })
         .unwrap()
         .then((res) => {
           if (res?.products?.length) {
-            dispatch(setSelectedProducts(mapWixProductsToSelected(res.products)));
+            dispatch(setSelectedProducts(mapWixProductsToSelected(res.products, savedProductIds)));
           } else {
-            dispatch(setSelectedProducts(ids.map((productId) => ({ productId, name: productId }))));
+            dispatch(setSelectedProducts(savedProductIds.map((p) => ({ productId: p.productId, name: p.productId }))));
           }
         })
         .catch(() => {
-          dispatch(setSelectedProducts(ids.map((productId) => ({ productId, name: productId }))));
+          dispatch(setSelectedProducts(savedProductIds.map((p) => ({ productId: p.productId, name: p.productId }))));
         });
     }
 

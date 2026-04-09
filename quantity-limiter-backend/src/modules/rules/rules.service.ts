@@ -267,7 +267,7 @@ export class RulesService {
         conditionType,
         productIds:
           conditionType === ProductSelectionType.SPECIFIC_PRODUCTS
-            ? [`product-${index}-1`, `product-${index}-2`]
+            ? [{ productId: `product-${index}-1` }, { productId: `product-${index}-2` }]
             : null,
         groupProducts:
           conditionType === ProductSelectionType.GROUP_OF_PRODUCTS

@@ -15,10 +15,15 @@ export interface RuleGroupProductCondition {
   value: string | string[];
 }
 
+export interface RuleProductSelection {
+  productId: string;
+  variantId?: string;
+}
+
 export interface RuleProduct {
   ruleId: string;
   conditionType: ProductSelectionType;
-  productIds: string[];
+  productIds: RuleProductSelection[];
   groupProducts: RuleGroupProductCondition[];
   conjunction: Conjunction;
   sellProductInMultiples: boolean;

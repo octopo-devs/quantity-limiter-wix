@@ -23,7 +23,7 @@ import {
   RuleGroupProductConditionType,
   RuleType,
 } from '../types/rule.enum';
-import { RuleGroupProductCondition } from '../types/rule.interface';
+import { RuleGroupProductCondition, RuleProductSelection } from '../types/rule.interface';
 
 export class GetRulesDto extends IntersectionType(DefaultPaginationRequest, DefaultAuthRequest) {
   @ApiPropertyOptional({ description: 'Filter by rule name', example: 'Product Limit' })
@@ -75,11 +75,13 @@ export class RuleProductDto {
   @IsEnum(ProductSelectionType)
   conditionType: ProductSelectionType;
 
-  @ApiPropertyOptional({ description: 'List of product IDs', example: ['product-id-1', 'product-id-2'] })
+  @ApiPropertyOptional({
+    description: 'List of product selections with optional variant',
+    example: [{ productId: 'product-id-1', variantId: 'variant-id-1' }, { productId: 'product-id-2' }],
+  })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  productIds?: string[];
+  productIds?: RuleProductSelection[];
 
   @ApiPropertyOptional({ description: 'Group product conditions', type: [RuleGroupProductConditionDto] })
   @IsOptional()

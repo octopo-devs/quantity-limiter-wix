@@ -22,13 +22,23 @@ export default function ProductRuleSetup({ ruleProduct, onFieldChange }: Product
   const selectedProducts = useMemo(() => rawSelectedProducts || [], [rawSelectedProducts]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleProductSelect = useCallback(
+  const syncProductFields = useCallback(
     (products: SelectedProduct[]) => {
       dispatch(setSelectedProducts(products));
-      const productIds = products.map((p) => p.productId);
+      const productIds = products.map((p) => ({
+        productId: p.productId,
+        ...(p.variantId ? { variantId: p.variantId } : {}),
+      }));
       onFieldChange('productIds', productIds);
     },
     [dispatch, onFieldChange],
+  );
+
+  const handleProductSelect = useCallback(
+    (products: SelectedProduct[]) => {
+      syncProductFields(products);
+    },
+    [syncProductFields],
   );
 
   const handleRemove = useCallback(
@@ -36,11 +46,9 @@ export default function ProductRuleSetup({ ruleProduct, onFieldChange }: Product
       const updatedProducts = selectedProducts.filter(
         (item) => !(item.productId === productId && item.variantId === variantId),
       );
-      dispatch(setSelectedProducts(updatedProducts));
-      const productIds = updatedProducts.map((p) => p.productId);
-      onFieldChange('productIds', productIds);
+      syncProductFields(updatedProducts);
     },
-    [dispatch, onFieldChange, selectedProducts],
+    [syncProductFields, selectedProducts],
   );
 
   return (

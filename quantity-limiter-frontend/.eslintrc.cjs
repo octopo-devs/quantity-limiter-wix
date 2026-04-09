@@ -75,7 +75,8 @@ module.exports = {
         'radix': 'off',
         'jsx-a11y/no-noninteractive-element-interactions': 'off',
         'jsx-a11y/label-has-associated-control': 'off',
-        'jsx-a11y/control-has-associated-label': 'off'
+        'jsx-a11y/control-has-associated-label': 'off',
+        'no-continue': 'off',
     },
     settings: {
         react: {
