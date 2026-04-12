@@ -54,7 +54,8 @@
       "Bash(xargs find:*)",
       "Bash(grep -E \"\\\\.ts$|app\")",
       "Bash(npx ts-node -e ':*)",
-      "Bash(npx typeorm:*)"
+      "Bash(npx typeorm:*)",
+      "Bash(playwright-cli state-save:*)"
     ]
   }
 }
