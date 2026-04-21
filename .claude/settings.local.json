@@ -55,7 +55,19 @@
       "Bash(grep -E \"\\\\.ts$|app\")",
       "Bash(npx ts-node -e ':*)",
       "Bash(npx typeorm:*)",
-      "Bash(playwright-cli state-save:*)"
+      "Bash(playwright-cli state-save:*)",
+      "Bash(bash:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(playwright-cli reload:*)",
+      "Bash(playwright-cli eval:*)",
+      "Bash(playwright-cli screenshot:*)",
+      "Bash(playwright-cli click:*)",
+      "Bash(playwright-cli snapshot:*)",
+      "Bash(playwright-cli run-code:*)",
+      "Bash('[role=dialog]')",
+      "Bash(playwright-cli mousemove:*)",
+      "Bash(playwright-cli press:*)",
+      "Bash(playwright-cli close:*)"
     ]
   }
 }

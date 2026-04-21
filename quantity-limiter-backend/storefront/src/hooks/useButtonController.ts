@@ -51,12 +51,11 @@ export function useButtonController({ hasViolation }: ButtonControllerOptions) {
     }
 
     const interval = setInterval(() => {
-      const messageVisible = !!document.querySelector('.ot-quantity-limit__message');
       const buttonsDisabled = disabledButtonsRef.current.size > 0;
 
-      if (messageVisible && !buttonsDisabled) {
+      if (hasViolation && !buttonsDisabled) {
         document.querySelectorAll(ADD_TO_CART_SELECTORS).forEach(disableButton);
-      } else if (!messageVisible && buttonsDisabled) {
+      } else if (!hasViolation && buttonsDisabled) {
         enableAllButtons();
       }
     }, 500);

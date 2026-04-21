@@ -52,6 +52,7 @@ export enum NotificationTrigger {
 
 export enum DisplayType {
   INLINE = 'INLINE',
+  POPUP = 'POPUP',
 }
 
 export enum TextAlign {
