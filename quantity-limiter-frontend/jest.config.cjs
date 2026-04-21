@@ -4,6 +4,9 @@ module.exports = {
   roots: ['<rootDir>/src'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
+    '^@/config$': '<rootDir>/src/testUtils/configStub.ts',
+    '^@/config/index$': '<rootDir>/src/testUtils/configStub.ts',
+    '^@/redux/store$': '<rootDir>/src/testUtils/storeStub.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|scss|sass|less)$': 'identity-obj-proxy',
     '\\.(png|jpg|jpeg|gif|svg|webp|ttf|woff|woff2)$': '<rootDir>/src/testUtils/fileStub.ts',
