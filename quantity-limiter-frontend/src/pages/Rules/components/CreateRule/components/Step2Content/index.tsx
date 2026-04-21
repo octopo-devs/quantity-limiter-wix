@@ -175,7 +175,7 @@ export default function Step2Content({ nameError, onNameErrorClear }: Step2Conte
                   <Input
                     type="number"
                     min={0}
-                    value={String(createRule.minQty || 1)}
+                    value={String(createRule.minQty ?? 1)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handleFieldChange('minQty', parseInt(e.target.value) || 0)
                     }
@@ -187,7 +187,7 @@ export default function Step2Content({ nameError, onNameErrorClear }: Step2Conte
                   <Input
                     type="number"
                     min={0}
-                    value={String(createRule.maxQty || 10)}
+                    value={String(createRule.maxQty ?? 10)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handleFieldChange('maxQty', parseInt(e.target.value) || 0)
                     }
