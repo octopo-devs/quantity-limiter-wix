@@ -8,10 +8,7 @@ export interface MockMutationTriggerState {
 
 export type MockMutationTrigger = jest.Mock<MockMutationResult, [any]>;
 
-export function makeMutationHook(
-  trigger: MockMutationTrigger,
-  state: MockMutationTriggerState = { isLoading: false },
-) {
+export function makeMutationHook(trigger: MockMutationTrigger, state: MockMutationTriggerState = { isLoading: false }) {
   return () => [trigger, state] as const;
 }
 
@@ -31,7 +28,11 @@ export const rejectingUnwrap = (err: any = new Error('api error')): MockMutation
   unwrap: () => Promise.reject(err),
 });
 
-export const pendingUnwrap = (): { result: MockMutationResult; resolve: (v?: any) => void; reject: (v?: any) => void } => {
+export const pendingUnwrap = (): {
+  result: MockMutationResult;
+  resolve: (v?: any) => void;
+  reject: (v?: any) => void;
+} => {
   let resolve: (v?: any) => void = () => {};
   let reject: (v?: any) => void = () => {};
   const promise = new Promise((res, rej) => {

@@ -1,5 +1,6 @@
+/* eslint-disable no-underscore-dangle, no-await-in-loop, no-promise-executor-return */
 import React from 'react';
-import { screen, within, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderCreateRule } from '@/testUtils/renderCreateRule';
 import {
@@ -14,8 +15,12 @@ const mockCreateMutationTrigger = jest.fn();
 const mockUpdateMutationTrigger = jest.fn();
 const mockGetRuleByIdResult = { data: undefined as any, isLoading: false, isFetching: false, isError: false };
 const mockGetAppearanceResult = { data: undefined as any, isLoading: false, isFetching: false, isError: false };
-const mockLazyWixProducts = jest.fn(() => ({ unwrap: () => Promise.resolve({ products: [] }) }));
-const mockLazyCollections = jest.fn(() => ({ unwrap: () => Promise.resolve({ data: [] }) }));
+const mockLazyWixProducts = jest.fn((): { unwrap: () => Promise<any> } => ({
+  unwrap: () => Promise.resolve({ products: [] }),
+}));
+const mockLazyCollections = jest.fn((): { unwrap: () => Promise<any> } => ({
+  unwrap: () => Promise.resolve({ data: [] }),
+}));
 const mockToastShow = jest.fn();
 
 jest.mock('@/redux/query', () => ({
@@ -451,9 +456,7 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
 
     // Step 1 header is present but body collapsed: Step 1 content only shows its
     // description text ("Limit quantity for ... rules") when expanded.
-    await waitFor(() =>
-      expect(screen.queryByText(/Limit quantity for product rules/i)).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.queryByText(/Limit quantity for product rules/i)).not.toBeInTheDocument());
 
     // Click Step 1 header — must NOT expand (type locked, drives code fix #2)
     const step1Header = screen.getByText(/Select target/i);
@@ -467,9 +470,7 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     await userEvent.click(screen.getByRole('button', { name: /^Save$/i }));
 
     await waitFor(() => expect(mockUpdateMutationTrigger).toHaveBeenCalled());
-    expect(mockUpdateMutationTrigger).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'rule-42', maxQty: 7 }),
-    );
+    expect(mockUpdateMutationTrigger).toHaveBeenCalledWith(expect.objectContaining({ id: 'rule-42', maxQty: 7 }));
     await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Rule updated successfully', false));
   }, 30000);
 
@@ -567,7 +568,6 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
       }),
     );
   }, 30000);
-
 });
 
 describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
@@ -737,10 +737,7 @@ describe('TC-002 Product Limit Detail — ERROR', () => {
     await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
 
     await waitFor(() =>
-      expect(mockToastShow).toHaveBeenCalledWith(
-        'Min quantity must be less than or equal to max quantity',
-        true,
-      ),
+      expect(mockToastShow).toHaveBeenCalledWith('Min quantity must be less than or equal to max quantity', true),
     );
     expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
   }, 20000);
@@ -800,9 +797,7 @@ describe('TC-002 Product Limit Detail — ERROR', () => {
     await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_R03 Empty Specific');
     await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
 
-    await waitFor(() =>
-      expect(mockToastShow).toHaveBeenCalledWith('Please select at least one product', true),
-    );
+    await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Please select at least one product', true));
     expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
     expect(screen.queryByTestId('rules-list-page')).not.toBeInTheDocument();
   }, 20000);

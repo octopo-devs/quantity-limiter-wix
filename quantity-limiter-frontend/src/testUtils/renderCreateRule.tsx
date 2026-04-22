@@ -12,12 +12,7 @@ interface RenderCreateRuleOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 export function renderCreateRule(options: RenderCreateRuleOptions = {}) {
-  const {
-    initialEntry = '/rules/create',
-    preloadedState,
-    store = createTestStore(preloadedState),
-    ...rest
-  } = options;
+  const { initialEntry = '/rules/create', preloadedState, store = createTestStore(preloadedState), ...rest } = options;
 
   const ui: ReactElement = (
     <Provider store={store}>

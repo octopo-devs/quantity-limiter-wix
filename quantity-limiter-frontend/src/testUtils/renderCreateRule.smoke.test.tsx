@@ -1,3 +1,5 @@
+import { renderCreateRule } from './renderCreateRule';
+
 jest.mock('@/redux/query', () => ({
   apiCaller: {
     useCreateRuleMutation: () => [jest.fn(), { isLoading: false }],
@@ -23,8 +25,6 @@ jest.mock('@/components/SelectWixProductModal', () => ({
   __esModule: true,
   default: ({ isOpen }: { isOpen: boolean }) => (isOpen ? <div data-testid="mock-modal" /> : null),
 }));
-
-import { renderCreateRule } from './renderCreateRule';
 
 describe('renderCreateRule smoke', () => {
   it('renders without crashing', () => {

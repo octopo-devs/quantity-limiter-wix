@@ -39,8 +39,7 @@ export function createTestStore(preloadedState?: Partial<TestRootState>) {
   return configureStore({
     reducer: rootReducer,
     preloadedState: preloadedState as any,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
   });
 }
 
