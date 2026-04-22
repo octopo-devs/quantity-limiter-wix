@@ -140,3 +140,47 @@ describe('TC-002 Product Limit Detail — EDGE', () => {
     });
   });
 });
+
+describe('TC-002 Product Limit Detail — HAPPY', () => {
+  it('TC-002-H01: creates All Products rule with defaults', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    const { store } = renderCreateRule();
+    await chooseProductType();
+
+    // Product Selection Type default = All Products — no products list, no group builder
+    expect(screen.queryByText(/Browse/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Conjunction/i)).not.toBeInTheDocument();
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC01 All Products');
+    await userEvent.type(
+      screen.getByPlaceholderText(/Enter message for min quantity limit/i),
+      'Minimum quantity required',
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(/Enter message for max quantity limit/i),
+      'Maximum quantity allowed',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalledTimes(1));
+    const payload = mockCreateMutationTrigger.mock.calls[0][0];
+    expect(payload).toMatchObject({
+      name: 'AC01 All Products',
+      type: RuleType.PRODUCT,
+      isActive: true,
+      minQty: 1,
+      maxQty: 10,
+      notifyAboutLimitWhen: NotificationTrigger.LIMIT_REACHED,
+      minQtyLimitMessage: 'Minimum quantity required',
+      maxQtyLimitMessage: 'Maximum quantity allowed',
+    });
+
+    await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Rule created successfully', false));
+    await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
+
+    // store.createRule should be reset after successful save+navigate
+    expect(store.getState().createRule.name).toBeFalsy();
+  }, 20000);
+});
