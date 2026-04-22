@@ -544,6 +544,32 @@ describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
     expect(payload.ruleProduct.groupProducts).toHaveLength(20);
   }, 60000);
 
+  it('TC-002-E01: switching Product Selection Type preserves prior selections within session', async () => {
+    renderCreateRule();
+    await chooseProductType();
+
+    // Pick 1 product in Specific
+    await switchProductSelection(/^Specific Products$/);
+    await openBrowseAndConfirm([{ productId: 'pA', name: 'Alpha' }]);
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+
+    // Switch to Group, add 1 condition
+    await switchProductSelection(/^Group of Products$/);
+    await userEvent.click(screen.getByRole('button', { name: /Add Condition/i }));
+    const conditionInput = screen.getByPlaceholderText(/Enter value/i) as HTMLInputElement;
+    await userEvent.type(conditionInput, 'sale');
+
+    // Switch back to Specific — list still shows Alpha
+    await switchProductSelection(/^Specific Products$/);
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+
+    // Switch back to Group — condition still there
+    await switchProductSelection(/^Group of Products$/);
+    const valueInputs = screen.getAllByPlaceholderText(/Enter value/i) as HTMLInputElement[];
+    expect(valueInputs).toHaveLength(1);
+    expect(valueInputs[0].value).toBe('sale');
+  }, 30000);
+
   it('TC-002-E07: variant-only pick shows variant title and saves variant ID', async () => {
     mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
 
