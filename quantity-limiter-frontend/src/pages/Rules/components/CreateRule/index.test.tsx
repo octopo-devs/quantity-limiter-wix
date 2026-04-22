@@ -333,6 +333,75 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     expect(store.getState().createRule.name).toBeFalsy();
   }, 20000);
 
+  it('TC-002-H04: edits existing PRODUCT rule — Step 1 locked, Step 2 prefilled, saves updated maxQty', async () => {
+    mockUpdateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-42' } }) });
+    mockGetRuleByIdResult.data = {
+      data: {
+        id: 'rule-42',
+        name: 'Existing Rule',
+        type: RuleType.PRODUCT,
+        isActive: true,
+        minQty: 2,
+        maxQty: 5,
+        notifyAboutLimitWhen: NotificationTrigger.LIMIT_REACHED,
+        showContactUsInNotification: false,
+        minQtyLimitMessage: '',
+        maxQtyLimitMessage: '',
+        contactUsButtonText: '',
+        contactUsMessage: '',
+        ruleProduct: {
+          conditionType: ProductSelectionType.SPECIFIC_PRODUCTS,
+          productIds: [{ productId: 'p1' }, { productId: 'p2' }],
+          groupProducts: [],
+        },
+      },
+    };
+    mockLazyWixProducts.mockImplementation(() => ({
+      unwrap: () =>
+        Promise.resolve({
+          products: [
+            { id: 'p1', name: 'Product One', media: {}, variants: [] },
+            { id: 'p2', name: 'Product Two', media: {}, variants: [] },
+          ],
+        }),
+    }));
+
+    renderCreateRule({ initialEntry: '/rules/edit/rule-42' });
+
+    expect(await screen.findByRole('heading', { name: /Edit limit/i })).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect((screen.getByPlaceholderText(/Enter rule name/i) as HTMLInputElement).value).toBe('Existing Rule'),
+    );
+    const minInput = screen.getByLabelText('Min Quantity') as HTMLInputElement;
+    const maxInput = screen.getByLabelText('Max Quantity') as HTMLInputElement;
+    expect(minInput.value).toBe('2');
+    expect(maxInput.value).toBe('5');
+
+    // Step 1 header is present but body collapsed: Step 1 content only shows its
+    // description text ("Limit quantity for ... rules") when expanded.
+    await waitFor(() =>
+      expect(screen.queryByText(/Limit quantity for product rules/i)).not.toBeInTheDocument(),
+    );
+
+    // Click Step 1 header — must NOT expand (type locked, drives code fix #2)
+    const step1Header = screen.getByText(/Select target/i);
+    await userEvent.click(step1Header);
+    // Wait a tick, then verify Step 1 remains collapsed
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(screen.queryByText(/Limit quantity for product rules/i)).not.toBeInTheDocument();
+
+    await userEvent.clear(maxInput);
+    await userEvent.type(maxInput, '7');
+    await userEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+
+    await waitFor(() => expect(mockUpdateMutationTrigger).toHaveBeenCalled());
+    expect(mockUpdateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'rule-42', maxQty: 7 }),
+    );
+    await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Rule updated successfully', false));
+  }, 30000);
+
   it('TC-002-H03: creates Group of Products rule with AND + 2 conditions', async () => {
     mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
 
@@ -504,6 +573,39 @@ describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
 });
 
 describe('TC-002 Product Limit Detail — ERROR', () => {
+  it('TC-002-R05: update API failure shows toast, stays on page', async () => {
+    mockUpdateMutationTrigger.mockReturnValue({ unwrap: () => Promise.reject(new Error('500')) });
+    mockGetRuleByIdResult.data = {
+      data: {
+        id: 'rule-77',
+        name: 'Existing',
+        type: RuleType.PRODUCT,
+        isActive: true,
+        minQty: 1,
+        maxQty: 5,
+        notifyAboutLimitWhen: NotificationTrigger.LIMIT_REACHED,
+        showContactUsInNotification: false,
+        minQtyLimitMessage: '',
+        maxQtyLimitMessage: '',
+        contactUsButtonText: '',
+        contactUsMessage: '',
+        ruleProduct: { conditionType: ProductSelectionType.ALL_PRODUCTS, productIds: [], groupProducts: [] },
+      },
+    };
+
+    renderCreateRule({ initialEntry: '/rules/edit/rule-77' });
+
+    const maxInput = (await screen.findByLabelText('Max Quantity')) as HTMLInputElement;
+    await waitFor(() => expect(maxInput.value).toBe('5'));
+    await userEvent.clear(maxInput);
+    await userEvent.type(maxInput, '8');
+
+    await userEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+
+    await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Failed to update rule', true));
+    expect(screen.queryByTestId('rules-list-page')).not.toBeInTheDocument();
+  }, 20000);
+
   it('TC-002-R03: Specific Products with zero products shows toast, blocks submit', async () => {
     renderCreateRule();
     await chooseProductType();

@@ -245,9 +245,12 @@ export default function CreateRule() {
 
   const handleStepToggle = useCallback(
     (step: CreateRuleStep) => {
+      if (isEditMode && step === CreateRuleStep.STEP_1) {
+        return;
+      }
       dispatch(setCollapseSection({ step, isOpen: !collapseSection[step] }));
     },
-    [dispatch, collapseSection],
+    [dispatch, collapseSection, isEditMode],
   );
 
   const renderStepIndicator = (step: CreateRuleStep, isLast = false) => {
