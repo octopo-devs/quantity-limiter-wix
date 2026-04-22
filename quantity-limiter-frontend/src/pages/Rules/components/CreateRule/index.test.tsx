@@ -224,7 +224,7 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
 
     // store.createRule should be reset after successful save+navigate
-    expect(store.getState().createRule.name).toBeFalsy();
+    expect(store.getState().createRule.createRule.name).toBeFalsy();
   }, 20000);
 
   it('TC-002-H06: notification trigger = Add to cart button clicked', async () => {
@@ -317,7 +317,7 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
     expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
     expect(mockToastShow).not.toHaveBeenCalled();
-    expect(store.getState().createRule.name).toBeFalsy();
+    expect(store.getState().createRule.createRule.name).toBeFalsy();
   }, 20000);
 
   it('TC-002-H12: back arrow behaves same as Cancel', async () => {
@@ -330,7 +330,7 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
     expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
     expect(mockToastShow).not.toHaveBeenCalled();
-    expect(store.getState().createRule.name).toBeFalsy();
+    expect(store.getState().createRule.createRule.name).toBeFalsy();
   }, 20000);
 
   it('TC-002-H05: Preview re-renders when rule state changes', async () => {
@@ -710,6 +710,55 @@ describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
 });
 
 describe('TC-002 Product Limit Detail — ERROR', () => {
+  it('TC-002-R01: empty Rule Name shows inline error + toast', async () => {
+    renderCreateRule();
+    await chooseProductType();
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    expect(await screen.findByText('Rule name is required')).toBeInTheDocument();
+    expect(mockToastShow).toHaveBeenCalledWith('Please fill in all required fields', true);
+    expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('rules-list-page')).not.toBeInTheDocument();
+  }, 20000);
+
+  it('TC-002-R02: minQty > maxQty shows toast, blocks submit', async () => {
+    renderCreateRule();
+    await chooseProductType();
+
+    const minInput = screen.getByLabelText('Min Quantity') as HTMLInputElement;
+    await userEvent.clear(minInput);
+    await userEvent.type(minInput, '10');
+    const maxInput = screen.getByLabelText('Max Quantity') as HTMLInputElement;
+    await userEvent.clear(maxInput);
+    await userEvent.type(maxInput, '5');
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_R02 Min>Max');
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() =>
+      expect(mockToastShow).toHaveBeenCalledWith(
+        'Min quantity must be less than or equal to max quantity',
+        true,
+      ),
+    );
+    expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('TC-002-R04: create API failure shows toast, stays on page with form data preserved', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.reject(new Error('500')) });
+
+    const { store } = renderCreateRule();
+    await chooseProductType();
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_R04 API Fail');
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockToastShow).toHaveBeenCalledWith('Failed to create rule', true));
+    expect(screen.queryByTestId('rules-list-page')).not.toBeInTheDocument();
+    expect(store.getState().createRule.createRule.name).toBe('AC_R04 API Fail');
+  }, 20000);
+
   it('TC-002-R05: update API failure shows toast, stays on page', async () => {
     mockUpdateMutationTrigger.mockReturnValue({ unwrap: () => Promise.reject(new Error('500')) });
     mockGetRuleByIdResult.data = {
