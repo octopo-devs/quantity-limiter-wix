@@ -333,6 +333,37 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     expect(store.getState().createRule.name).toBeFalsy();
   }, 20000);
 
+  it('TC-002-H08: toggle Show Contact Us reveals 2 fields and persists values', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+
+    // Fields not visible by default
+    expect(screen.queryByPlaceholderText(/Enter contact us button text/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/Enter contact us message/i)).not.toBeInTheDocument();
+
+    const contactToggle = getToggleCheckbox('Show Contact Us in Notification');
+    await userEvent.click(contactToggle);
+
+    const btnText = (await screen.findByPlaceholderText(/Enter contact us button text/i)) as HTMLInputElement;
+    const message = (await screen.findByPlaceholderText(/Enter contact us message/i)) as HTMLInputElement;
+    fireEvent.change(btnText, { target: { value: 'Contact Us' } });
+    fireEvent.change(message, { target: { value: 'Need help? Email us.' } });
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC08 Contact On');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        showContactUsInNotification: true,
+        contactUsButtonText: 'Contact Us',
+        contactUsMessage: 'Need help? Email us.',
+      }),
+    );
+  }, 30000);
+
   it('TC-002-H04: edits existing PRODUCT rule — Step 1 locked, Step 2 prefilled, saves updated maxQty', async () => {
     mockUpdateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-42' } }) });
     mockGetRuleByIdResult.data = {
