@@ -333,6 +333,46 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     expect(store.getState().createRule.name).toBeFalsy();
   }, 20000);
 
+  it('TC-002-H05: Preview re-renders when rule state changes', async () => {
+    mockGetAppearanceResult.data = {
+      data: {
+        displayType: 'BANNER',
+        backgroundColor: '#ffffff',
+        textColor: '#000000',
+        fontFamily: 'Arial',
+        textAlign: 'left',
+        fontSize: 14,
+        customCss: '',
+      },
+    };
+
+    renderCreateRule();
+    await chooseProductType();
+
+    const previewBefore = screen.getByTestId('preview').textContent || '';
+
+    const minMsg = screen.getByPlaceholderText(/Enter message for min quantity limit/i) as HTMLInputElement;
+    fireEvent.change(minMsg, { target: { value: 'Min {{min_quantity}}' } });
+
+    await waitFor(() => {
+      const now = screen.getByTestId('preview').textContent || '';
+      expect(now).not.toBe(previewBefore);
+      expect(now).toContain('Min {{min_quantity}}');
+    });
+
+    const previewMid = screen.getByTestId('preview').textContent || '';
+    const maxMsg = screen.getByPlaceholderText(/Enter message for max quantity limit/i) as HTMLInputElement;
+    fireEvent.change(maxMsg, { target: { value: 'Max {{max_quantity}}' } });
+
+    await waitFor(() => {
+      const now = screen.getByTestId('preview').textContent || '';
+      expect(now).not.toBe(previewMid);
+      expect(now).toContain('Max {{max_quantity}}');
+    });
+
+    expect(screen.getByTestId('preview').textContent).toContain('#ffffff');
+  }, 30000);
+
   it('TC-002-H08: toggle Show Contact Us reveals 2 fields and persists values', async () => {
     mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
 
