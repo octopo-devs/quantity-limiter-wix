@@ -544,6 +544,46 @@ describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
     expect(payload.ruleProduct.groupProducts).toHaveLength(20);
   }, 60000);
 
+  it('TC-002-E04: 255-char Rule Name saves verbatim', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+
+    const longName = 'A'.repeat(255);
+    const nameInput = screen.getByPlaceholderText(/Enter rule name/i) as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: longName } });
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger.mock.calls[0][0].name).toBe(longName);
+    expect(mockCreateMutationTrigger.mock.calls[0][0].name).toHaveLength(255);
+  }, 20000);
+
+  it('TC-002-E05: ~5000-char min/max messages save verbatim', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+
+    const longMin = 'x'.repeat(5000);
+    const longMax = 'y'.repeat(5000);
+    const minMsg = screen.getByPlaceholderText(/Enter message for min quantity limit/i) as HTMLInputElement;
+    const maxMsg = screen.getByPlaceholderText(/Enter message for max quantity limit/i) as HTMLInputElement;
+    fireEvent.change(minMsg, { target: { value: longMin } });
+    fireEvent.change(maxMsg, { target: { value: longMax } });
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_E05 Long Message');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    const payload = mockCreateMutationTrigger.mock.calls[0][0];
+    expect(payload.minQtyLimitMessage).toBe(longMin);
+    expect(payload.maxQtyLimitMessage).toBe(longMax);
+    expect(payload.minQtyLimitMessage).toHaveLength(5000);
+  }, 20000);
+
   it('TC-002-E01: switching Product Selection Type preserves prior selections within session', async () => {
     renderCreateRule();
     await chooseProductType();
