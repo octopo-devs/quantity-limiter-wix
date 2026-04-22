@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, within, waitFor } from '@testing-library/react';
+import { screen, within, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderCreateRule } from '@/testUtils/renderCreateRule';
 import { NotificationTrigger, ProductSelectionType, RuleType } from '@/types/enum';
@@ -77,12 +77,37 @@ async function chooseProductType() {
   await userEvent.click(productCard);
 }
 
+function findFormFieldRoot(labelMatcher: RegExp | string): HTMLElement {
+  const label = screen.getByText(labelMatcher);
+  const field = label.closest('[class*="FormField__root"]') as HTMLElement | null;
+  if (!field) throw new Error(`FormField root not found for label: ${labelMatcher}`);
+  return field;
+}
+
 async function selectDropdown(labelMatcher: RegExp | string, optionMatcher: RegExp | string) {
-  const field = screen.getByText(labelMatcher).closest('div, label');
-  const trigger = within(field as HTMLElement).getByRole('button');
-  await userEvent.click(trigger);
-  const option = await screen.findByRole('menuitem', { name: optionMatcher });
+  const field = findFormFieldRoot(labelMatcher);
+  const combobox = field.querySelector('[role="combobox"]') as HTMLElement;
+  if (!combobox) throw new Error(`Combobox not found for label: ${labelMatcher}`);
+  await userEvent.click(combobox);
+  const option = await screen.findByText(optionMatcher);
   await userEvent.click(option);
+}
+
+async function selectNotificationTrigger(optionText: RegExp) {
+  await selectDropdown(/^Notify About Limit When$/, optionText);
+}
+
+function getToggleCheckbox(labelText: string): HTMLElement {
+  const field = findFormFieldRoot(labelText);
+  const input = field.querySelector('input[type="checkbox"]');
+  if (!input) throw new Error(`Toggle not found for label: ${labelText}`);
+  return input as HTMLElement;
+}
+
+function getBackButton(): HTMLElement {
+  const btn = document.querySelector('[data-hook="page-header-backbutton"]');
+  if (!btn) throw new Error('Back button not found');
+  return btn as HTMLElement;
 }
 
 describe('TC-002 Product Limit Detail — EDGE', () => {
@@ -181,6 +206,112 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
 
     // store.createRule should be reset after successful save+navigate
+    expect(store.getState().createRule.name).toBeFalsy();
+  }, 20000);
+
+  it('TC-002-H06: notification trigger = Add to cart button clicked', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC06 ATC');
+    await selectNotificationTrigger(/Add to cart button clicked/i);
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({ notifyAboutLimitWhen: NotificationTrigger.ADD_TO_CART_BUTTON_CLICKED }),
+    );
+  }, 20000);
+
+  it('TC-002-H07: notification trigger = No notification', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC07 No Notify');
+    await selectNotificationTrigger(/No notification/i);
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({ notifyAboutLimitWhen: NotificationTrigger.NO_NOTIFICATION }),
+    );
+  }, 20000);
+
+  it('TC-002-H09: template variables in messages saved verbatim', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+
+    const minInput = screen.getByLabelText('Min Quantity') as HTMLInputElement;
+    await userEvent.clear(minInput);
+    await userEvent.type(minInput, '2');
+    const maxInput = screen.getByLabelText('Max Quantity') as HTMLInputElement;
+    await userEvent.clear(maxInput);
+    await userEvent.type(maxInput, '5');
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC09 Template Vars');
+    fireEvent.change(screen.getByPlaceholderText(/Enter message for min quantity limit/i), {
+      target: { value: 'Buy at least {{min_quantity}} units' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Enter message for max quantity limit/i), {
+      target: { value: 'Maximum {{max_quantity}} per order' },
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        minQtyLimitMessage: 'Buy at least {{min_quantity}} units',
+        maxQtyLimitMessage: 'Maximum {{max_quantity}} per order',
+      }),
+    );
+  }, 20000);
+
+  it('TC-002-H10: Active=OFF saves with isActive=false', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+
+    const activeToggle = getToggleCheckbox('Active');
+    await userEvent.click(activeToggle);
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC10 Inactive');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(expect.objectContaining({ isActive: false }));
+  }, 20000);
+
+  it('TC-002-H11: Cancel discards and navigates to /rules', async () => {
+    const { store } = renderCreateRule();
+    await chooseProductType();
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'Draft');
+
+    await userEvent.click(screen.getByRole('button', { name: /^Cancel$/i }));
+
+    await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
+    expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
+    expect(mockToastShow).not.toHaveBeenCalled();
+    expect(store.getState().createRule.name).toBeFalsy();
+  }, 20000);
+
+  it('TC-002-H12: back arrow behaves same as Cancel', async () => {
+    const { store } = renderCreateRule();
+    await chooseProductType();
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'Draft');
+
+    await userEvent.click(getBackButton());
+
+    await waitFor(() => expect(screen.getByTestId('rules-list-page')).toBeInTheDocument());
+    expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
+    expect(mockToastShow).not.toHaveBeenCalled();
     expect(store.getState().createRule.name).toBeFalsy();
   }, 20000);
 });
