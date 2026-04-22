@@ -2,7 +2,13 @@ import React from 'react';
 import { screen, within, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderCreateRule } from '@/testUtils/renderCreateRule';
-import { NotificationTrigger, ProductSelectionType, RuleType } from '@/types/enum';
+import {
+  NotificationTrigger,
+  ProductSelectionType,
+  RuleGroupProductConditionOperator,
+  RuleGroupProductConditionType,
+  RuleType,
+} from '@/types/enum';
 
 const mockCreateMutationTrigger = jest.fn();
 const mockUpdateMutationTrigger = jest.fn();
@@ -327,6 +333,60 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     expect(store.getState().createRule.name).toBeFalsy();
   }, 20000);
 
+  it('TC-002-H03: creates Group of Products rule with AND + 2 conditions', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Group of Products$/);
+
+    expect(screen.queryByRole('button', { name: /Browse/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/^Conjunction$/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Add Condition/i })).toBeInTheDocument();
+
+    // Add condition #1 (defaults to Tag/Equals, value empty)
+    await userEvent.click(screen.getByRole('button', { name: /Add Condition/i }));
+    const firstValueInput = screen.getAllByPlaceholderText(/Enter value/i)[0] as HTMLInputElement;
+    await userEvent.type(firstValueInput, 'sale');
+
+    // Add condition #2
+    await userEvent.click(screen.getByRole('button', { name: /Add Condition/i }));
+
+    // Change row #2 type dropdown to "Name" (enum TITLE)
+    const tagCombos = document.querySelectorAll('input[role="combobox"][value="Tag"]');
+    expect(tagCombos.length).toBeGreaterThanOrEqual(2);
+    await userEvent.click(tagCombos[1] as HTMLElement);
+    await userEvent.click(await screen.findByText(/^Name$/));
+
+    // Change row #2 operator dropdown to "Contains"
+    const equalsCombos = document.querySelectorAll('input[role="combobox"][value="Equals"]');
+    expect(equalsCombos.length).toBeGreaterThanOrEqual(2);
+    await userEvent.click(equalsCombos[1] as HTMLElement);
+    await userEvent.click(await screen.findByText(/^Contains$/));
+
+    const valueInputs = screen.getAllByPlaceholderText(/Enter value/i) as HTMLInputElement[];
+    await userEvent.type(valueInputs[1], 'T-Shirt');
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC03 Group AND');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    const payload = mockCreateMutationTrigger.mock.calls[0][0];
+    expect(payload.ruleProduct.conditionType).toBe(ProductSelectionType.GROUP_OF_PRODUCTS);
+    expect(payload.ruleProduct.conjunction).toBe('AND');
+    expect(payload.ruleProduct.groupProducts).toHaveLength(2);
+    expect(payload.ruleProduct.groupProducts[0]).toMatchObject({
+      type: RuleGroupProductConditionType.TAG,
+      operator: RuleGroupProductConditionOperator.EQUALS,
+      value: 'sale',
+    });
+    expect(payload.ruleProduct.groupProducts[1]).toMatchObject({
+      type: RuleGroupProductConditionType.TITLE,
+      operator: RuleGroupProductConditionOperator.CONTAINS,
+      value: 'T-Shirt',
+    });
+  }, 30000);
+
   it('TC-002-H02: creates Specific Products rule, removes one product', async () => {
     mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
 
@@ -390,6 +450,30 @@ describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
     const payload = mockCreateMutationTrigger.mock.calls[0][0];
     expect(payload.ruleProduct.productIds).toHaveLength(50);
   }, 30000);
+
+  it('TC-002-E03: 20 conditions at cap saves successfully', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Group of Products$/);
+
+    for (let i = 0; i < 20; i++) {
+      await userEvent.click(screen.getByRole('button', { name: /Add Condition/i }));
+    }
+    const valueInputs = screen.getAllByPlaceholderText(/Enter value/i) as HTMLInputElement[];
+    expect(valueInputs).toHaveLength(20);
+    for (let i = 0; i < 20; i++) {
+      fireEvent.change(valueInputs[i], { target: { value: `val${i}` } });
+    }
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_E03 Cap 20 Conditions');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    const payload = mockCreateMutationTrigger.mock.calls[0][0];
+    expect(payload.ruleProduct.groupProducts).toHaveLength(20);
+  }, 60000);
 
   it('TC-002-E07: variant-only pick shows variant title and saves variant ID', async () => {
     mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
