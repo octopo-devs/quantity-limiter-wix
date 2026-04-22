@@ -97,6 +97,18 @@ async function selectNotificationTrigger(optionText: RegExp) {
   await selectDropdown(/^Notify About Limit When$/, optionText);
 }
 
+async function switchProductSelection(optionText: RegExp) {
+  await selectDropdown(/^Product Selection Type$/, optionText);
+}
+
+async function openBrowseAndConfirm(
+  picks: Array<{ productId: string; variantId?: string; name: string; variantTitle?: string; image?: string }>,
+) {
+  (window as any).__MOCK_PICK__ = picks;
+  await userEvent.click(screen.getByRole('button', { name: /Browse/i }));
+  await userEvent.click(screen.getByTestId('mock-modal-confirm'));
+}
+
 function getToggleCheckbox(labelText: string): HTMLElement {
   const field = findFormFieldRoot(labelText);
   const input = field.querySelector('input[type="checkbox"]');
@@ -313,5 +325,113 @@ describe('TC-002 Product Limit Detail — HAPPY', () => {
     expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
     expect(mockToastShow).not.toHaveBeenCalled();
     expect(store.getState().createRule.name).toBeFalsy();
+  }, 20000);
+
+  it('TC-002-H02: creates Specific Products rule, removes one product', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Specific Products$/);
+
+    await openBrowseAndConfirm([
+      { productId: 'p1', name: 'Plain Product' },
+      { productId: 'p2', variantId: 'v1', name: 'Variant Product', variantTitle: 'Size: M, Color: Red' },
+    ]);
+
+    expect(screen.getByText('Plain Product')).toBeInTheDocument();
+    expect(screen.getByText('Variant Product')).toBeInTheDocument();
+    expect(screen.getByText('Size: M, Color: Red')).toBeInTheDocument();
+
+    // Find delete icon button within the plain product row (a horizontal Box)
+    let row: HTMLElement | null = screen.getByText('Plain Product');
+    while (row && row.getAttribute('class')?.indexOf('direction-10-horizontal') === -1) {
+      row = row.parentElement;
+    }
+    const deleteBtn = row?.querySelector('button') as HTMLElement;
+    await userEvent.click(deleteBtn);
+
+    expect(screen.queryByText('Plain Product')).not.toBeInTheDocument();
+    expect(screen.getByText('Variant Product')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC02 Specific');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ruleProduct: expect.objectContaining({
+          conditionType: ProductSelectionType.SPECIFIC_PRODUCTS,
+          productIds: [{ productId: 'p2', variantId: 'v1' }],
+        }),
+      }),
+    );
+  }, 30000);
+
+});
+
+describe('TC-002 Product Limit Detail — EDGE — Specific/Variant', () => {
+  it('TC-002-E02: 50 products at cap saves successfully', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Specific Products$/);
+
+    const picks = Array.from({ length: 50 }, (_, i) => ({ productId: `p${i}`, name: `Product ${i}` }));
+    await openBrowseAndConfirm(picks);
+
+    expect(screen.getAllByText(/^Product \d+$/).length).toBe(50);
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_E02 Cap 50');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    const payload = mockCreateMutationTrigger.mock.calls[0][0];
+    expect(payload.ruleProduct.productIds).toHaveLength(50);
+  }, 30000);
+
+  it('TC-002-E07: variant-only pick shows variant title and saves variant ID', async () => {
+    mockCreateMutationTrigger.mockReturnValue({ unwrap: () => Promise.resolve({ data: { id: 'rule-1' } }) });
+
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Specific Products$/);
+
+    await openBrowseAndConfirm([
+      { productId: 'pX', variantId: 'vSM', name: 'Shirt', variantTitle: 'Size: M, Color: Red' },
+    ]);
+
+    expect(screen.getByText('Shirt')).toBeInTheDocument();
+    expect(screen.getByText('Size: M, Color: Red')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_E07 Variant Only');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() => expect(mockCreateMutationTrigger).toHaveBeenCalled());
+    expect(mockCreateMutationTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ruleProduct: expect.objectContaining({
+          productIds: [{ productId: 'pX', variantId: 'vSM' }],
+        }),
+      }),
+    );
+  }, 20000);
+});
+
+describe('TC-002 Product Limit Detail — ERROR', () => {
+  it('TC-002-R03: Specific Products with zero products shows toast, blocks submit', async () => {
+    renderCreateRule();
+    await chooseProductType();
+    await switchProductSelection(/^Specific Products$/);
+
+    await userEvent.type(screen.getByPlaceholderText(/Enter rule name/i), 'AC_R03 Empty Specific');
+    await userEvent.click(screen.getByRole('button', { name: /Create Limit/i }));
+
+    await waitFor(() =>
+      expect(mockToastShow).toHaveBeenCalledWith('Please select at least one product', true),
+    );
+    expect(mockCreateMutationTrigger).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('rules-list-page')).not.toBeInTheDocument();
   }, 20000);
 });
